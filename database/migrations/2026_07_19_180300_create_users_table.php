@@ -19,9 +19,16 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('national_code', 10)->unique();
             $table->enum('gender', ['Male', 'Female', 'NonBinary']);
-            $table->date('birth_date')->nullable();;
+            $table->date('birth_date')->nullable();
             $table->string('phone', 11);
-            $table->text('address')->nullable();;
+            $table->string('country')->default('Iran');
+            $table->string('province');
+            $table->string('city');
+            $table->string('street');
+            $table->string('alley')->nullable();
+            $table->string('plaque')->nullable();
+            $table->string('unit')->nullable();
+            $table->string('postal_code', 10)->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
