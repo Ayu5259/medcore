@@ -8,6 +8,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Doctor extends Model
 {
+    protected $fillable = [
+        'user_id',
+        'department_id',
+        'specialty_id',
+        'medical_license',
+        'experience_years',
+    ];
+
+    protected $casts = [];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

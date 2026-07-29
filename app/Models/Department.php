@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Department extends Model
 {
+    protected $fillable = [
+        'name',
+        'description',
+    ];
+
+    protected $casts = [];
+
     public function doctors(): HasMany
     {
         return $this->hasMany(Doctor::class);

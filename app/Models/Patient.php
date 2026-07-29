@@ -9,6 +9,16 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Patient extends Model
 {
+    protected $fillable = [
+        'user_id',
+        'emergency_contact_name',
+        'emergency_contact_phone',
+        'blood_group',
+        'allergies', //JSON?
+    ];
+
+    protected $casts = [];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

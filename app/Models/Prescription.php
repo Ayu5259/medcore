@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Prescription extends Model
 {
+    protected $fillable = [
+        'medical_record_id',
+        'doctor_id',
+        'patient_id',
+    ];
+
+    protected $casts = [];
+
     public function appointment(): BelongsTo
     {
         return $this->belongsTo(Appointment::class);

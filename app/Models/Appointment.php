@@ -8,6 +8,19 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Appointment extends Model
 {
+    protected $fillable = [
+        'doctor_id',
+        'patient_id',
+        'appointment_date',
+        'appointment_time',
+        'status',
+        'notes',
+    ];
+
+    protected $casts = [
+        'appointment_date' => 'date',
+    ];
+
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
