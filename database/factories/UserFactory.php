@@ -14,7 +14,6 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'role_id' => 1,
 
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
@@ -50,5 +49,27 @@ class UserFactory extends Factory
 
             'is_active' => true,
         ];
+    }
+    public function doctor(): static
+    {
+        return $this->state([
+            'role_id' => 2,
+        ]);
+    }
+
+
+    public function patient(): static
+    {
+        return $this->state([
+            'role_id' => 3,
+        ]);
+    }
+
+
+    public function nurse(): static
+    {
+        return $this->state([
+            'role_id' => 4,
+        ]);
     }
 }

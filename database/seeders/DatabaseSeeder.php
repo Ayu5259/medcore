@@ -2,18 +2,29 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Models\Nurse;
+use App\Models\DoctorSchedule;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     public function run(): void
     {
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
+            DepartmentSeeder::class,
+            SpecialtySeeder::class,
         ]);
+
+        Doctor::factory(10)->create();
+
+        Patient::factory(20)->create();
+
+        Nurse::factory(10)->create();
+
+        DoctorSchedule::factory(30)->create();
     }
 }

@@ -5,15 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Doctor extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'user_id',
         'department_id',
         'specialty_id',
         'medical_license',
-        'experience_years',
+        'experience_year',
     ];
 
     protected $casts = [];
