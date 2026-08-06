@@ -3,23 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MedicalRecord extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'patient_id',
-        'doctor_id',
-        'appointment_id',
-        'appointment_date',
-        'appointment_time',
-        'diagnosis',
-        'symptoms',
-        'notes',
-        'blood_pressure',
-        'temperature',
-        'heart_rate',
+
     ];
 
     protected $casts = [

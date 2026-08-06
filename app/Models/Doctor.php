@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Doctor extends Model
 {
+    //add this line to make "Doctor::factory()->create();" work
     use HasFactory;
     protected $fillable = [
         'user_id',

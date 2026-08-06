@@ -11,17 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('medical_records', function (Blueprint $table) {
+        Schema::create('visit_reports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('doctor_id')->constrained();
-            $table->foreignId('patient_id')->constrained();
-            $table->foreignId('appointment_id')->nullable();
+
+            $table->foreignId('appointment_id')
+                ->constrained()
+                ->unique();
+
             $table->text('diagnosis');
+
             $table->text('symptoms');
+
             $table->text('notes')->nullable();
+
             $table->string('blood_pressure');
+
             $table->decimal('temperature', 4, 1);
+
             $table->integer('heart_rate');
+
             $table->timestamps();
         });
     }
@@ -31,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('medical_records');
+        Schema::dropIfExists('visit_reports');
     }
 };

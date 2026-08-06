@@ -7,6 +7,9 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Nurse;
 use App\Models\DoctorSchedule;
+use App\Models\Appointment;
+use App\Models\MedicalRecord;
+
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,11 +23,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Doctor::factory(10)->create();
-
         Patient::factory(20)->create();
-
+        MedicalRecord::factory(20)->create();
         Nurse::factory(10)->create();
-
         DoctorSchedule::factory(30)->create();
+        Appointment::factory(50)->create();
     }
 }

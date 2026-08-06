@@ -5,9 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\VisitReport;
 
 class Appointment extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'doctor_id',
         'patient_id',
@@ -34,6 +38,11 @@ class Appointment extends Model
     public function medicalRecord(): BelongsTo
     {
         return $this->belongsTo(MedicalRecord::class);
+    }
+
+    public function visitReport(): HasOne
+    {
+        return $this->hasOne(VisitReport::class);
     }
 
     public function prescription(): HasOne

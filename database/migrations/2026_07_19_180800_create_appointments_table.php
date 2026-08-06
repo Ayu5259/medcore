@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('doctor_id')->constrained();
             $table->foreignId('patient_id')->constrained();
+            $table->foreignId('medical_record_id')->constrained();
             $table->date('appointment_date');
             $table->time('appointment_end_time');
             $table->time('appointment_start_time');

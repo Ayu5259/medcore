@@ -18,6 +18,9 @@ class DoctorFactory extends Factory
      *
      * @return array<string, mixed>
      */
+
+    protected $model = Doctor::class;
+
     public function definition(): array
     {
         return [
