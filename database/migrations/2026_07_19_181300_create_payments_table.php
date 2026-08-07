@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('patient_id')->constrained();
-            $table->foreignId('appointment_id')->nullOnDelete()->constrained();
+            $table->foreignId('appointment_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
             $table->decimal('amount', 10, 2);
             $table->enum('method', [
                 'cash',

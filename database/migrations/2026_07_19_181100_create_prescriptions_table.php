@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('prescriptions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('medical_record_id')->constrained();
-            $table->dateTime('issued_at');
+
+            $table->foreignId('appointment_id')
+                ->constrained()
+                ->unique();
+
             $table->timestamps();
         });
     }

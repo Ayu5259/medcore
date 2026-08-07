@@ -9,7 +9,9 @@ use App\Models\Nurse;
 use App\Models\DoctorSchedule;
 use App\Models\Appointment;
 use App\Models\MedicalRecord;
-
+use App\Models\Prescription;
+use App\Models\PrescriptionItem;
+use App\Models\Payment;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,6 +22,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             DepartmentSeeder::class,
             SpecialtySeeder::class,
+            MedicineSeeder::class,
         ]);
 
         Doctor::factory(10)->create();
@@ -28,5 +31,19 @@ class DatabaseSeeder extends Seeder
         Nurse::factory(10)->create();
         DoctorSchedule::factory(30)->create();
         Appointment::factory(50)->create();
+        Payment::factory(50)->create();
+
+        Appointment::all()->each(function ($appointment) {
+
+            Prescription::factory()->create([
+                'appointment_id' => $appointment->id
+            ]);
+        });
+        Prescription::all()->each(function ($prescription) {
+
+            PrescriptionItem::factory(3)->create([
+                'prescription_id' => $prescription->id
+            ]);
+        });
     }
 }

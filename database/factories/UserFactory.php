@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\Role;
 
 class UserFactory extends Factory
 {
@@ -53,7 +54,7 @@ class UserFactory extends Factory
     public function doctor(): static
     {
         return $this->state([
-            'role_id' => 2,
+            'role_id' => Role::where('name', 'Doctor')->first()->id
         ]);
     }
 
