@@ -34,14 +34,8 @@ class UserFactory extends Factory
             'country' => 'Iran',
             'province' => fake()->state(),
             'city' => fake()->city(),
-            'street' => fake()->streetName(),
-
-            'alley' => fake()->optional()->word(),
-            'plaque' => fake()->optional()->numberBetween(1, 100),
-            'unit' => fake()->optional()->numberBetween(1, 20),
-
+            'address' => fake()->address(),
             'postal_code' => fake()->optional()->numerify('##########'),
-
             'email' => fake()->unique()->safeEmail(),
 
             'password' => Hash::make('password'),

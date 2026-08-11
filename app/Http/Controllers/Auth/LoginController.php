@@ -24,7 +24,7 @@ class LoginController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
-
+        ///یا کاربری با این اطلاعات وجود دارد و پسوردش درست است؟
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 

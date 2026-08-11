@@ -12,6 +12,7 @@ class User extends Authenticatable
     use HasFactory;
 
     protected $fillable = [
+        //role_id shoudnt be taken from user(controller)
         'role_id',
         'first_name',
         'last_name',
@@ -19,7 +20,11 @@ class User extends Authenticatable
         'gender',
         'birth_date',
         'phone',
+        'country',
+        'province',
+        'city',
         'address',
+        'postal_code',
         'email',
         'password',
         'is_active',
