@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class RegisterController extends Controller
 {
@@ -24,10 +25,22 @@ class RegisterController extends Controller
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'national_code' => ['required', 'string', 'size:10', 'unique:users,national_code'],
+            'national_code' => [
+                'required',
+                'string',
+                'size:10',
+                'regex:/^[0-9]{10}$/',
+                'unique:users,national_code',
+            ],
             'gender' => ['required', 'in:Male,Female,NonBinary'],
             'birth_date' => ['nullable', 'date'],
-            'phone' => ['required', 'string', 'size:11'],
+            'phone' => [
+                'required',
+                'string',
+                'size:11',
+                'regex:/^09[0-9]{9}$/',
+            ],
+
 
             // Validate the address fields
             'country' => ['nullable', 'string', 'max:255'],
@@ -37,8 +50,12 @@ class RegisterController extends Controller
             'alley' => ['nullable', 'string', 'max:255'],
             'plaque' => ['nullable', 'string', 'max:50'],
             'unit' => ['nullable', 'string', 'max:50'],
-            'postal_code' => ['nullable', 'string', 'max:20'],
-
+            'postal_code' => [
+                'nullable',
+                'string',
+                'size:10',
+                'regex:/^[0-9]{10}$/',
+            ],
             'email' => ['required', 'email', 'unique:users,email'],
             'email_confirmation' => ['required', 'same:email'],
             'password' => ['required', 'confirmed', 'min:8'],
@@ -47,7 +64,7 @@ class RegisterController extends Controller
         // Remove confirmation fields that are not stored in the database
         unset($validated['email_confirmation']);
 
-        // Hash the user's password before storing it
+        // Hash the users password before storing it
         $validated['password'] = Hash::make($validated['password']);
 
         // Find the Patient role
@@ -60,6 +77,12 @@ class RegisterController extends Controller
         $user = User::create($validated);
 
         // Display the data for testing
-        dd($validated);
+        //dd($validated);
+
+        Auth::login($user);
+
+        $request->session()->regenerate();
+
+        return 'Registration successful and logged in';
     }
 }

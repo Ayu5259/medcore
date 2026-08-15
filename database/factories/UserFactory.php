@@ -30,7 +30,6 @@ class UserFactory extends Factory
             'birth_date' => fake()->date(),
 
             'phone' => fake()->numerify('09#########'),
-
             'country' => 'Iran',
             'province' => fake()->state(),
             'city' => fake()->city(),

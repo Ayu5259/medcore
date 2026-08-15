@@ -1,0 +1,25 @@
+[90m= [39m[34;4mApp\Models\User[39;24m {#8106
+    [34mid[39m: [35m1[39m,
+    [34mrole_id[39m: [35m1[39m,
+    [34mfirst_name[39m: [32m"[39m[32mAmparo[39m[32m"[39m,
+    [34mlast_name[39m: [32m"[39m[32mGrant[39m[32m"[39m,
+    [34mnational_code[39m: [32m"[39m[32m6698027379[39m[32m"[39m,
+    [34mgender[39m: [32m"[39m[32mNonBinary[39m[32m"[39m,
+    [34mbirth_date[39m: [32m"[39m[32m2021-09-06[39m[32m"[39m,
+    [34mphone[39m: [32m"[39m[32m09099910290[39m[32m"[39m,
+    [34mcountry[39m: [32m"[39m[32mIran[39m[32m"[39m,
+    [34mprovince[39m: [32m"[39m[32mConnecticut[39m[32m"[39m,
+    [34mcity[39m: [32m"[39m[32mWest Revaton[39m[32m"[39m,
+    [34mpostal_code[39m: [36mnull[39m,
+    [34memail[39m: [32m"[39m[32madmin@test.com[39m[32m"[39m,
+    [34memail_verified_at[39m: [36mnull[39m,
+    #[33mpassword[39m: [32m"[39m\$[32m2y[39m\$[32m12[39m\$[32mlcpCuca6cCclU9uISfuS9OUa6n680tY6AsGhz20FRqMIXkvWFlm8G[39m[32m"[39m,
+    #[33mremember_token[39m: [32m"[39m[32mqIM7OwD1kD[39m[32m"[39m,
+    [34mis_active[39m: [36mtrue[39m,
+    [34mcreated_at[39m: [32m"[39m[32m2026-08-11 12:32:17[39m[32m"[39m,
+    [34mupdated_at[39m: [32m"[39m[32m2026-08-11 12:32:17[39m[32m"[39m,
+    [34maddress[39m: <<<[32mEOS[39m
+      [32m53944 Feeney Rue Suite 008[39m
+      [32mWest Annabellhaven, NE 20841-5483[39m
+      [32mEOS[39m,
+  }
