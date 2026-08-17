@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminController;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -36,3 +38,14 @@ Route::post('/logout', function (Request $request) {
 
     return redirect()->route('login');
 })->middleware('auth')->name('logout');
+
+Route::get('/admin', function () {
+    return 'Welcome Admin';
+})->middleware(['auth', 'role:admin']);
+
+Route::get('/medical-area', function () {
+    return 'Medical area';
+})->middleware(['auth', 'role:doctor,nurse']);
+
+Route::get('/admin', [AdminController::class, 'index'])
+    ->middleware(['auth', 'role:admin']);
