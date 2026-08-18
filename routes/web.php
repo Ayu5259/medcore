@@ -5,32 +5,36 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AppointmentController;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 
+// Authentication Routes
+
 // Show the login form
 Route::get('/login', [LoginController::class, 'showLoginForm']);
 
+
 // Process login request
 Route::post('/login', [LoginController::class, 'login']);
+
 
 // Show the registration form
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])
     ->name('register');
 
+
 // Process registration request
 Route::post('/register', [RegisterController::class, 'register'])
     ->name('register.store');
 
-// Dashboard
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth')
-    ->name('dashboard');
 
 // Logout
+// Only authenticated users can logout.
 Route::post('/logout', function (Request $request) {
+
     Auth::logout();
 
     $request->session()->invalidate();
@@ -39,13 +43,36 @@ Route::post('/logout', function (Request $request) {
     return redirect()->route('login');
 })->middleware('auth')->name('logout');
 
-Route::get('/admin', function () {
-    return 'Welcome Admin';
-})->middleware(['auth', 'role:admin']);
 
+// Dashboard
+
+// Dashboard is available to all authenticated users.
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware('auth')
+    ->name('dashboard');
+
+
+// Admin Routes
+
+// Only users with the admin role can access the admin panel.
+Route::get('/admin', [AdminController::class, 'index'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('admin');
+
+
+// Medical Routes
+
+// Doctors and nurses can access the medical area.
 Route::get('/medical-area', function () {
     return 'Medical area';
-})->middleware(['auth', 'role:doctor,nurse']);
+})->middleware(['auth', 'role:doctor,nurse'])
+    ->name('medical.area');
 
-Route::get('/admin', [AdminController::class, 'index'])
-    ->middleware(['auth', 'role:admin']);
+
+// Appointment Routes
+
+// Display a specific appointment.
+// Authorization is handled by AppointmentPolicy.
+Route::get('/appointments/{appointment}', [AppointmentController::class, 'show'])
+    ->middleware('auth')
+    ->name('appointments.show');
