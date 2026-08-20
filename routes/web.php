@@ -76,3 +76,20 @@ Route::get('/medical-area', function () {
 Route::get('/appointments/{appointment}', [AppointmentController::class, 'show'])
     ->middleware('auth')
     ->name('appointments.show');
+
+// Display the authenticated patient's appointment list.
+Route::get('/appointments', [AppointmentController::class, 'index'])
+    ->middleware('auth')
+    ->name('appointments.index');
+
+// Display the appointment creation form.
+// This route requires the user to be authenticated.
+Route::get('/appointments/create', [AppointmentController::class, 'create'])
+    ->middleware('auth')
+    ->name('appointments.create');
+
+// Store a newly created appointment.
+// This route requires the user to be authenticated.
+Route::post('/appointments', [AppointmentController::class, 'store'])
+    ->middleware('auth')
+    ->name('appointments.store');
