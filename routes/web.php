@@ -45,7 +45,6 @@ Route::post('/logout', function (Request $request) {
 
 
 // Dashboard
-
 // Dashboard is available to all authenticated users.
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware('auth')
@@ -53,7 +52,6 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 
 // Admin Routes
-
 // Only users with the admin role can access the admin panel.
 Route::get('/admin', [AdminController::class, 'index'])
     ->middleware(['auth', 'role:admin'])
@@ -61,7 +59,6 @@ Route::get('/admin', [AdminController::class, 'index'])
 
 
 // Medical Routes
-
 // Doctors and nurses can access the medical area.
 Route::get('/medical-area', function () {
     return 'Medical area';
@@ -77,7 +74,7 @@ Route::get('/appointments/{appointment}', [AppointmentController::class, 'show']
     ->middleware('auth')
     ->name('appointments.show');
 
-// Display the authenticated patient's appointment list.
+// Display the authenticated patients appointment list.
 Route::get('/appointments', [AppointmentController::class, 'index'])
     ->middleware('auth')
     ->name('appointments.index');
@@ -93,3 +90,16 @@ Route::get('/appointments/create', [AppointmentController::class, 'create'])
 Route::post('/appointments', [AppointmentController::class, 'store'])
     ->middleware('auth')
     ->name('appointments.store');
+
+// Update appointments.
+Route::patch('/appointments/{appointment}', [AppointmentController::class, 'update'])
+    ->name('appointments.update');
+
+
+// Edit appointments.     
+Route::get('/appointments/{appointment}/edit', [AppointmentController::class, 'edit'])
+    ->name('appointments.edit');
+
+// Cancel appointments.
+Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])
+    ->name('appointments.cancel');

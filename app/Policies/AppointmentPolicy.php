@@ -101,7 +101,7 @@ class AppointmentPolicy
         // Allow Admin, Doctor, and Patient users to create appointments.
         return in_array(
             $role,
-            ['admin', 'doctor', 'patient'],
+            ['doctor', 'patient'],
             true
         );
     }

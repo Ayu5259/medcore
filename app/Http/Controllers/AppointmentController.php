@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
-    // Display the authenticated patient's appointments.
+    // Display the authenticated patients appointments.
     public function index(Request $request)
     {
         // Check whether the authenticated user is allowed
@@ -72,6 +72,46 @@ class AppointmentController extends Controller
     }
 
 
+    // Display the appointment edit form.
+    public function edit(Appointment $appointment)
+    {
+        // Check whether the authenticated user is allowed
+        // to update this specific appointment.
+        Gate::authorize('update', $appointment);
+
+        // Pass the appointment to the edit view.
+        return view('appointments.edit', compact('appointment'));
+    }
+
+    // Update an existing appointment.
+    public function update(Request $request, Appointment $appointment)
+    {
+        // Check whether the authenticated user is allowed
+        // to update this specific appointment.
+        Gate::authorize('update', $appointment);
+
+        // Validate only the fields that are allowed to be updated.
+        $validated = $request->validate([
+            'appointment_date' => ['required', 'date'],
+            'appointment_start_time' => ['required', 'date_format:H:i'],
+            'appointment_end_time' => ['required', 'date_format:H:i'],
+            'room_number' => ['required', 'integer'],
+            'visit_type' => [
+                'required',
+                'in:InPerson,Online,Emergency,FollowUp',
+            ],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        // Update only the allowed appointment fields.
+        $appointment->update($validated);
+
+        // Redirect back to the appointment details page.
+        return redirect()
+            ->route('appointments.show', $appointment)
+            ->with('success', 'Appointment updated successfully.');
+    }
+
     // Store a newly created appointment.
     public function store(Request $request)
     {
@@ -129,5 +169,18 @@ class AppointmentController extends Controller
 
         // Redirect the user to the newly created appointment.
         return redirect()->route('appointments.show', $appointment);
+    }
+
+    public function cancel(Appointment $appointment)
+    {
+        Gate::authorize('cancel', $appointment);
+
+        $appointment->update([
+            'status' => 'cancelled',
+        ]);
+
+        return redirect()
+            ->route('appointments.show', $appointment)
+            ->with('success', 'Appointment cancelled successfully.');
     }
 }

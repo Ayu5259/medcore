@@ -17,6 +17,13 @@
     {{-- Page title --}}
     <h1>Appointment #{{ $appointment->id }}</h1>
 
+    {{-- Success message --}}
+    @if (session('success'))
+    <div>
+        {{ session('success') }}
+    </div>
+    @endif
+
     {{-- Doctor information --}}
     <div>
         <strong>Doctor:</strong>
@@ -67,6 +74,38 @@
         <strong>Notes:</strong>
 
         {{ $appointment->notes ?? 'No additional notes.' }}
+    </div>
+
+
+    {{-- Appointment actions --}}
+    <div>
+
+        {{-- Edit Appointment --}}
+        @can('update', $appointment)
+        @if (!in_array($appointment->status, ['cancelled', 'completed']))
+        <a href="{{ route('appointments.edit', $appointment) }}">
+            Edit Appointment
+        </a>
+        @endif
+        @endcan
+
+
+        {{-- Cancel Appointment --}}
+        @can('cancel', $appointment)
+        @if (in_array($appointment->status, ['pending', 'confirmed']))
+        <form
+            method="POST"
+            action="{{ route('appointments.cancel', $appointment) }}">
+            @csrf
+            @method('PATCH')
+
+            <button type="submit">
+                Cancel Appointment
+            </button>
+        </form>
+        @endif
+        @endcan
+
     </div>
 
 </body>
