@@ -6,6 +6,8 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
+use App\Models\DoctorSchedule;
+use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
@@ -120,7 +122,6 @@ class AppointmentController extends Controller
         Gate::authorize('create', Appointment::class);
 
         // Get the Patient record that belongs to the authenticated User.
-        // We do NOT accept patient_id from the request.
         $patient = $request->user()->patient;
 
         // Make sure the authenticated user actually has a Patient profile.
@@ -129,7 +130,6 @@ class AppointmentController extends Controller
         }
 
         // Get the Medical Record that belongs to this Patient.
-        // We do NOT accept medical_record_id from the request.
         $medicalRecord = $patient->medicalRecord;
 
         // Make sure the Patient has a Medical Record.
@@ -150,6 +150,83 @@ class AppointmentController extends Controller
             ],
             'notes' => ['nullable', 'string'],
         ]);
+
+        // Business Rule 1:
+        // The appointment must have a positive time range.
+        if ($validated['appointment_start_time'] >= $validated['appointment_end_time']) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'appointment_start_time' =>
+                    'Appointment start time must be before the end time.',
+                ]);
+        }
+        // Determine the day of the week for the requested appointment date.
+        $date = Carbon::parse($validated['appointment_date']);
+
+        $days = [
+            0 => 'یکشنبه',
+            1 => 'دوشنبه',
+            2 => 'سه‌شنبه',
+            3 => 'چهارشنبه',
+            4 => 'پنجشنبه',
+            5 => 'جمعه',
+            6 => 'شنبه',
+        ];
+
+        $dayOfWeek = $days[$date->dayOfWeek];
+
+        // Business Rule 2:
+        // The doctor must have a schedule that fully covers
+        // the requested appointment time.
+        $hasSchedule = DoctorSchedule::query()
+            ->where('doctor_id', $validated['doctor_id'])
+            ->where('day_of_week', $dayOfWeek)
+            ->where('start_time', '<=', $validated['appointment_start_time'])
+            ->where('end_time', '>=', $validated['appointment_end_time'])
+            ->exists();
+
+        // Reject the appointment if the doctor is not working
+        // during the requested time.
+        if (!$hasSchedule) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'appointment_start_time' =>
+                    'The doctor is not available at the selected time.',
+                ]);
+        }
+        // Business Rule 2:
+        // A doctor cannot have two active appointments
+        // that overlap on the same date.
+        $hasConflict = Appointment::query()
+            ->where('doctor_id', $validated['doctor_id'])
+            ->where('appointment_date', $validated['appointment_date'])
+            ->where('status', '!=', 'cancelled')
+            ->where(function ($query) use ($validated) {
+                $query
+                    ->where(
+                        'appointment_start_time',
+                        '<',
+                        $validated['appointment_end_time']
+                    )
+                    ->where(
+                        'appointment_end_time',
+                        '>',
+                        $validated['appointment_start_time']
+                    );
+            })
+            ->exists();
+
+        // Reject the appointment if the selected time is already occupied.
+        if ($hasConflict) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'appointment_start_time' =>
+                    'The selected time is not available for this doctor.',
+                ]);
+        }
 
         // Create the Appointment using the authenticated Patient
         // and the Patient's Medical Record.
