@@ -4,10 +4,12 @@ namespace App\Policies;
 
 use App\Models\MedicalRecordEntry;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class MedicalRecordEntryPolicy
 {
+    /**
+     * Admin bypasses all policy checks
+     */
     public function before(User $user, string $ability): bool|null
     {
         $role = strtolower(trim($user->role?->name ?? ''));
@@ -18,8 +20,9 @@ class MedicalRecordEntryPolicy
 
         return null;
     }
+
     /**
-     * Determine whether the user can view any models.
+     * General listing is not allowed.
      */
     public function viewAny(User $user): bool
     {
@@ -27,7 +30,12 @@ class MedicalRecordEntryPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Patients can view their own history.
+     *
+     * Doctors can view the patients history if they
+     * have an appointment with that patient.
+     *
+     * A doctor is not limited to entries created by themselves.
      */
     public function view(
         User $user,
@@ -35,22 +43,33 @@ class MedicalRecordEntryPolicy
     ): bool {
         $role = strtolower(trim($user->role?->name ?? ''));
 
+        // Patient can only view their own medical record.
         if ($role === 'patient') {
             return $user->patient?->id ===
                 $medicalRecordEntry->medicalRecord?->patient_id;
         }
 
+        // Doctor can view the patients complete medical history.
         if ($role === 'doctor') {
-            return $medicalRecordEntry->medicalRecord
-                ->appointments()
+            $medicalRecord = $medicalRecordEntry->medicalRecord;
+
+            if (!$medicalRecord) {
+                return false;
+            }
+
+            return $medicalRecord->appointments()
                 ->where('doctor_id', $user->doctor?->id)
                 ->exists();
         }
 
         return false;
     }
+
     /**
-     * Determine whether the user can create models.
+     * Only doctors can create entries.
+     *
+     * The target appointment and medical record must be
+     * validated separately when creating the entry.
      */
     public function create(User $user): bool
     {
@@ -60,7 +79,7 @@ class MedicalRecordEntryPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Doctors can update only entries created by themselves.
      */
     public function update(
         User $user,
@@ -72,10 +91,12 @@ class MedicalRecordEntryPolicy
             return false;
         }
 
-        return $medicalRecordEntry->doctor_id === $user->doctor?->id;
+        return $medicalRecordEntry->doctor_id ===
+            $user->doctor?->id;
     }
+
     /**
-     * Determine whether the user can delete the model.
+     * Medical history cannot be deleted.
      */
     public function delete(
         User $user,
@@ -83,19 +104,24 @@ class MedicalRecordEntryPolicy
     ): bool {
         return false;
     }
+
     /**
-     * Determine whether the user can restore the model.
+     * Soft delete is not used for MedicalRecordEntry.
      */
-    public function restore(User $user, MedicalRecordEntry $medicalRecordEntry): bool
-    {
+    public function restore(
+        User $user,
+        MedicalRecordEntry $medicalRecordEntry
+    ): bool {
         return false;
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Permanent deletion is not allowed.
      */
-    public function forceDelete(User $user, MedicalRecordEntry $medicalRecordEntry): bool
-    {
+    public function forceDelete(
+        User $user,
+        MedicalRecordEntry $medicalRecordEntry
+    ): bool {
         return false;
     }
 }

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class MedicalRecordPolicy
+//READ ONLY
 {
     /**
      * Allow administrators to perform all medical record actions.
@@ -30,7 +31,7 @@ class MedicalRecordPolicy
     {
         $role = strtolower(trim($user->role?->name ?? ''));
 
-        return in_array($role, ['doctor', 'patient', true]);
+        return in_array($role, ['doctor', 'patient'], true);
     }
 
     /**
@@ -49,7 +50,7 @@ class MedicalRecordPolicy
         // the doctor has an appointment with that patient.
         if ($role === 'doctor') {
             return $medicalRecord->appointments()
-                ->where('doctor_id', '$user->doctor?->id')
+                ->where('doctor_id', $user->doctor?->id)
                 ->exists();
         }
         return false;
@@ -68,20 +69,6 @@ class MedicalRecordPolicy
      */
     public function update(User $user, MedicalRecord $medicalRecord): bool
     {
-        $role = strtolower(trim($user->role?->name ?? ''));
-
-        // Patients cannot modify their medical records.
-        if ($role === 'patient') {
-            return false;
-        }
-
-        // A doctor can update a medical record only if
-        // the doctor has an appointment with that patient.
-        if ($role === 'doctor') {
-            return $medicalRecord->appointments()
-                ->where('doctor_id', $user->doctor?->id)
-                ->exists();
-        }
         return false;
     }
 
