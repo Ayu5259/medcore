@@ -30,7 +30,7 @@ class MedicalRecord extends Model
         return $this->hasMany(Appointment::class);
     }
 
-    public function entries()
+    public function entries(): HasMany
     {
         return $this->hasMany(MedicalRecordEntry::class);
     }
