@@ -98,7 +98,7 @@ class AppointmentPolicy
         // Get the normalized role name of the authenticated user.
         $role = $this->roleName($user);
 
-        // Allow Admin, Doctor, and Patient users to create appointments.
+        // Allow Doctor, and Patient users to create appointments.
         return in_array(
             $role,
             ['doctor', 'patient'],

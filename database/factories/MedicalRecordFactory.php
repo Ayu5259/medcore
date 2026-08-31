@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\MedicalRecord;
-use App\Models\Patient;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class MedicalRecordFactory extends Factory
@@ -12,9 +11,6 @@ class MedicalRecordFactory extends Factory
 
     public function definition(): array
     {
-        return [
-            //first patient then we will have record for it
-            'patient_id' => Patient::inRandomOrder()->first()->id,
-        ];
+        return [];
     }
 }

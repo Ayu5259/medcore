@@ -25,10 +25,9 @@ class AppointmentFactory extends Factory
         $patient = Patient::inRandomOrder()->first();
 
         return [
-            //یعنی از بین ۱۰ دکتری که قبلا ساختیم، یکی را تصادفی انتخاب کن
             'doctor_id' => Doctor::inRandomOrder()->first()->id,
-            'patient_id' => Patient::inRandomOrder()->first()->id,
-            'medical_record_id' => MedicalRecord::inRandomOrder()->first()->id,
+            'patient_id' => $patient->id,
+            'medical_record_id' => $patient->medicalRecord->id,
             'appointment_date' => fake()->dateTimeBetween('now', '+30 days')->format('Y-m-d'),
             'appointment_start_time' => '09:00',
             'appointment_end_time' => '09:30',

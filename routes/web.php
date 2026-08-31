@@ -1,4 +1,3 @@
-```php
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -11,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\MedicalRecordEntryController;
+use App\Http\Controllers\MedicalRecordController;
 
 
 // Authentication Routes
@@ -70,52 +70,41 @@ Route::get('/medical-area', function () {
 
 // Appointment Routes.
 
-// Display a specific appointment.
-// Authorization is handled by AppointmentPolicy.
-Route::get('/appointments/{appointment}', [AppointmentController::class, 'show'])
-    ->middleware('auth')
-    ->name('appointments.show');
-
-
-// Display the authenticated patient's appointment list.
+// List appointments
 Route::get('/appointments', [AppointmentController::class, 'index'])
     ->middleware('auth')
     ->name('appointments.index');
 
-
-// Display the appointment creation form.
-// This route requires the user to be authenticated.
+// Display appointment creation form
 Route::get('/appointments/create', [AppointmentController::class, 'create'])
     ->middleware('auth')
     ->name('appointments.create');
 
-
-// Store a newly created appointment.
-// This route requires the user to be authenticated.
+// Store appointment
 Route::post('/appointments', [AppointmentController::class, 'store'])
     ->middleware('auth')
     ->name('appointments.store');
 
-
-// Update an appointment.
-// This route requires the user to be authenticated.
-Route::patch('/appointments/{appointment}', [AppointmentController::class, 'update'])
+// Display a specific appointment
+Route::get('/appointments/{appointment}', [AppointmentController::class, 'show'])
     ->middleware('auth')
-    ->name('appointments.update');
+    ->name('appointments.show');
 
-
-// Edit an appointment.
-// This route requires the user to be authenticated.
+// Edit appointment
 Route::get('/appointments/{appointment}/edit', [AppointmentController::class, 'edit'])
     ->middleware('auth')
     ->name('appointments.edit');
 
+// Update appointment
+Route::patch('/appointments/{appointment}', [AppointmentController::class, 'update'])
+    ->middleware('auth')
+    ->name('appointments.update');
 
-// Cancel an appointment.
-// This route requires the user to be authenticated.
+// Cancel appointment
 Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])
     ->middleware('auth')
     ->name('appointments.cancel');
+
 
 
 // Medical Record Entry Routes.
@@ -161,3 +150,10 @@ Route::middleware('auth')->group(function () {
         [MedicalRecordEntryController::class, 'show']
     )->name('medical-record-entries.show');
 });
+
+
+// MedicalRecord
+
+// Show MedicalRecord
+Route::get('/medical-records/{medicalRecord}', [MedicalRecordController::class, 'show'])
+    ->name('medical_records.show');

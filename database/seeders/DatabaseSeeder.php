@@ -26,8 +26,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Doctor::factory(10)->create();
-        Patient::factory(20)->create();
-        MedicalRecord::factory(20)->create();
+        Patient::factory(20)->create()->each(function ($patient) {
+            MedicalRecord::factory()->create([
+                'patient_id' => $patient->id,
+            ]);
+        });
         Nurse::factory(10)->create();
         DoctorSchedule::factory(30)->create();
         Appointment::factory(50)->create();

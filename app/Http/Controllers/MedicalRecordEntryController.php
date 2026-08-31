@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\MedicalRecordEntry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class MedicalRecordEntryController extends Controller
@@ -29,7 +30,8 @@ class MedicalRecordEntryController extends Controller
     {
         Gate::authorize('create', MedicalRecordEntry::class);
 
-        $doctor = auth()->user()->doctor;
+        $user = Auth::user();
+        $doctor = $user?->doctor;
 
         if (!$doctor) {
             abort(403);
@@ -59,7 +61,8 @@ class MedicalRecordEntryController extends Controller
             'notes'          => ['nullable', 'string'],
         ]);
 
-        $doctor = auth()->user()->doctor;
+        $user = Auth::user();
+        $doctor = $user?->doctor;
 
         if (!$doctor) {
             abort(403);

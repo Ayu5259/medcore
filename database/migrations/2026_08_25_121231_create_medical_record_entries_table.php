@@ -20,6 +20,7 @@ return new class extends Migration
 
             $table->foreignId('appointment_id')
                 ->constrained()
+                ->unique()
                 ->cascadeOnDelete();
 
             $table->foreignId('doctor_id')
