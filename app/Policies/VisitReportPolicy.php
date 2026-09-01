@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Appointment;
 use App\Models\User;
 use App\Models\VisitReport;
 
@@ -12,7 +13,7 @@ class VisitReportPolicy
      */
     public function before(User $user, string $ability): bool|null
     {
-        $role = $this->roleName($user);
+        $role = strtolower(trim($user->role?->name ?? ''));
 
         if ($role === 'admin') {
             return true;
@@ -22,98 +23,52 @@ class VisitReportPolicy
     }
 
     /**
-     * General listing is not allowed.
+     * Determine whether the user may create a visit report
+     * for the given appointment.
      */
-    public function viewAny(User $user): bool
+    public function create(User $user, Appointment $appointment): bool
     {
-        return false;
-    }
+        $role = strtolower(trim($user->role?->name ?? ''));
 
-    /**
-     * Users can view reports related to their own appointment.
-     */
-    public function view(User $user, VisitReport $visitReport): bool
-    {
-        $role = $this->roleName($user);
-
-        if ($role === null || !$visitReport->appointment) {
+        if ($role !== 'doctor') {
             return false;
         }
 
-        // Doctor can view reports of their own appointments.
-        if ($role === 'doctor') {
-            return $user->doctor?->id ===
-                $visitReport->appointment->doctor_id;
-        }
+        return $user->doctor?->id === $appointment->doctor_id;
+    }
 
-        // Patient can view reports of their own appointments.
+    /**
+     * Determine whether the user may view the visit report.
+     */
+    public function view(User $user, VisitReport $visitReport): bool
+    {
+        $role = strtolower(trim($user->role?->name ?? ''));
+
         if ($role === 'patient') {
             return $user->patient?->id ===
-                $visitReport->appointment->patient_id;
+                $visitReport->appointment?->patient_id;
+        }
+
+        if ($role === 'doctor') {
+            return $user->doctor?->id ===
+                $visitReport->appointment?->doctor_id;
         }
 
         return false;
     }
 
     /**
-     * Only doctors can create visit reports.
-     *
-     * The appointment ownership must be checked separately.
-     */
-    public function create(User $user): bool
-    {
-        return $this->roleName($user) === 'doctor';
-    }
-
-    /**
-     * Doctors can update only reports belonging
-     * to their own appointments.
+     * Determine whether the user may update the visit report.
      */
     public function update(User $user, VisitReport $visitReport): bool
     {
-        $role = $this->roleName($user);
+        $role = strtolower(trim($user->role?->name ?? ''));
 
-        if ($role !== 'doctor' || !$visitReport->appointment) {
+        if ($role !== 'doctor') {
             return false;
         }
 
         return $user->doctor?->id ===
-            $visitReport->appointment->doctor_id;
-    }
-
-    /**
-     * Visit reports cannot be deleted.
-     */
-    public function delete(User $user, VisitReport $visitReport): bool
-    {
-        return false;
-    }
-
-    /**
-     * Restore is not allowed.
-     */
-    public function restore(User $user, VisitReport $visitReport): bool
-    {
-        return false;
-    }
-
-    /**
-     * Permanent deletion is not allowed.
-     */
-    public function forceDelete(User $user, VisitReport $visitReport): bool
-    {
-        return false;
-    }
-
-    /**
-     * Get the normalized role name.
-     */
-    private function roleName(User $user): ?string
-    {
-        if (!$user->role) {
-            return null;
-        }
-
-        return strtolower(trim($user->role->name));
+            $visitReport->appointment?->doctor_id;
     }
 }

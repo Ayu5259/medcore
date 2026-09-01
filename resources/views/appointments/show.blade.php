@@ -106,6 +106,26 @@
         @endif
         @endcan
 
+
+        {{-- Create Visit Report --}}
+        @can('create', [\App\Models\VisitReport::class, $appointment])
+        @if (!$appointment->visitReport)
+        <a href="{{ route('visit-reports.create', $appointment) }}">
+            Create Visit Report
+        </a>
+        @endif
+        @endcan
+
+
+        {{-- View Visit Report --}}
+        @if ($appointment->visitReport)
+        @can('view', $appointment->visitReport)
+        <a href="{{ route('visit-reports.show', $appointment->visitReport) }}">
+            View Visit Report
+        </a>
+        @endcan
+        @endif
+
     </div>
 
 </body>

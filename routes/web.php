@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\MedicalRecordEntryController;
 use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\VisitReportController;
 
 
 // Authentication Routes
@@ -157,3 +158,33 @@ Route::middleware('auth')->group(function () {
 // Show MedicalRecord
 Route::get('/medical-records/{medicalRecord}', [MedicalRecordController::class, 'show'])
     ->name('medical_records.show');
+
+
+// Visit Report
+Route::middleware('auth')->group(function () {
+
+    Route::get(
+        '/appointments/{appointment}/visit-report/create',
+        [VisitReportController::class, 'create']
+    )->name('visit-reports.create');
+
+    Route::post(
+        '/appointments/{appointment}/visit-report',
+        [VisitReportController::class, 'store']
+    )->name('visit-reports.store');
+
+    Route::get(
+        '/visit-reports/{visitReport}',
+        [VisitReportController::class, 'show']
+    )->name('visit-reports.show');
+
+    Route::get(
+        '/visit-reports/{visitReport}/edit',
+        [VisitReportController::class, 'edit']
+    )->name('visit-reports.edit');
+
+    Route::put(
+        '/visit-reports/{visitReport}',
+        [VisitReportController::class, 'update']
+    )->name('visit-reports.update');
+});

@@ -17,6 +17,12 @@ class MedicalRecordEntryController extends Controller
     {
         Gate::authorize('view', $medicalRecordEntry);
 
+        $medicalRecordEntry->load([
+            'doctor.user',
+            'appointment',
+            'medicalRecord.patient',
+        ]);
+
         return view(
             'medical_record_entries.show',
             compact('medicalRecordEntry')
@@ -30,14 +36,14 @@ class MedicalRecordEntryController extends Controller
     {
         Gate::authorize('create', MedicalRecordEntry::class);
 
-        $user = Auth::user();
-        $doctor = $user?->doctor;
+        $doctor = Auth::user()?->doctor;
 
         if (!$doctor) {
             abort(403);
         }
 
         $appointments = Appointment::where('doctor_id', $doctor->id)
+            ->whereDoesntHave('medicalRecordEntry')
             ->with('patient')
             ->get();
 
@@ -61,16 +67,14 @@ class MedicalRecordEntryController extends Controller
             'notes'          => ['nullable', 'string'],
         ]);
 
-        $user = Auth::user();
-        $doctor = $user?->doctor;
+        $doctor = Auth::user()?->doctor;
 
         if (!$doctor) {
             abort(403);
         }
 
         /*
-         * The selected appointment must belong
-         * to the authenticated doctor.
+         * The appointment must belong to the authenticated doctor.
          */
         $appointment = Appointment::where('id', $validated['appointment_id'])
             ->where('doctor_id', $doctor->id)
@@ -86,8 +90,15 @@ class MedicalRecordEntryController extends Controller
         }
 
         /*
-         * Prevent creating multiple entries
-         * for the same appointment.
+         * The medical record must belong to the same patient
+         * as the appointment.
+         */
+        if ($medicalRecord->patient_id !== $appointment->patient_id) {
+            abort(403, 'Medical record does not belong to this patient.');
+        }
+
+        /*
+         * Prevent creating multiple entries for the same appointment.
          */
         if (
             MedicalRecordEntry::where(
@@ -144,13 +155,13 @@ class MedicalRecordEntryController extends Controller
         Gate::authorize('update', $medicalRecordEntry);
 
         $validated = $request->validate([
-            'diagnosis'  => ['required', 'string'],
+            'diagnosis' => ['required', 'string'],
             'treatment' => ['nullable', 'string'],
             'notes'     => ['nullable', 'string'],
         ]);
 
         $medicalRecordEntry->update([
-            'diagnosis'  => $validated['diagnosis'],
+            'diagnosis' => $validated['diagnosis'],
             'treatment' => $validated['treatment'] ?? null,
             'notes'     => $validated['notes'] ?? null,
         ]);

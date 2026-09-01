@@ -8,7 +8,7 @@ use App\Models\User;
 class MedicalRecordEntryPolicy
 {
     /**
-     * Admin bypasses all policy checks
+     * Admin bypasses all policy checks.
      */
     public function before(User $user, string $ability): bool|null
     {
@@ -32,10 +32,8 @@ class MedicalRecordEntryPolicy
     /**
      * Patients can view their own history.
      *
-     * Doctors can view the patients history if they
-     * have an appointment with that patient.
-     *
-     * A doctor is not limited to entries created by themselves.
+     * Doctors can view the complete medical history
+     * of a patient if they have an appointment with that patient.
      */
     public function view(
         User $user,
@@ -43,13 +41,11 @@ class MedicalRecordEntryPolicy
     ): bool {
         $role = strtolower(trim($user->role?->name ?? ''));
 
-        // Patient can only view their own medical record.
         if ($role === 'patient') {
             return $user->patient?->id ===
                 $medicalRecordEntry->medicalRecord?->patient_id;
         }
 
-        // Doctor can view the patients complete medical history.
         if ($role === 'doctor') {
             $medicalRecord = $medicalRecordEntry->medicalRecord;
 
@@ -66,10 +62,10 @@ class MedicalRecordEntryPolicy
     }
 
     /**
-     * Only doctors can create entries.
+     * Only doctors can create medical record entries.
      *
-     * The target appointment and medical record must be
-     * validated separately when creating the entry.
+     * The controller validates that the appointment,
+     * doctor and medical record are correctly related.
      */
     public function create(User $user): bool
     {

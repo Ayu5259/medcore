@@ -15,11 +15,14 @@ class MedicalRecordController extends Controller
         Gate::authorize('view', $medicalRecord);
 
         $medicalRecord->load([
-            'patient',
-            'entries.doctor',
+            'patient.user',
+            'entries.doctor.user',
             'entries.appointment',
         ]);
 
-        return view('medical_records.show', compact('medicalRecord'));
+        return view(
+            'medical_records.show',
+            compact('medicalRecord')
+        );
     }
 }
