@@ -7,6 +7,7 @@ use App\Models\MedicalRecordEntry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Database\QueryException;
 
 class MedicalRecordEntryController extends Controller
 {
@@ -74,15 +75,15 @@ class MedicalRecordEntryController extends Controller
         }
 
         /*
-         * The appointment must belong to the authenticated doctor.
-         */
+     * The appointment must belong to the authenticated doctor.
+     */
         $appointment = Appointment::where('id', $validated['appointment_id'])
             ->where('doctor_id', $doctor->id)
             ->firstOrFail();
 
         /*
-         * The appointment must have a medical record.
-         */
+     * The appointment must have a medical record.
+     */
         $medicalRecord = $appointment->medicalRecord;
 
         if (!$medicalRecord) {
@@ -90,16 +91,19 @@ class MedicalRecordEntryController extends Controller
         }
 
         /*
-         * The medical record must belong to the same patient
-         * as the appointment.
-         */
+     * The medical record must belong to the same patient
+     * as the appointment.
+     */
         if ($medicalRecord->patient_id !== $appointment->patient_id) {
             abort(403, 'Medical record does not belong to this patient.');
         }
 
         /*
-         * Prevent creating multiple entries for the same appointment.
-         */
+     * Fast application-level check.
+     *
+     * This improves the normal case, but it is NOT the final
+     * protection against duplicate entries.
+     */
         if (
             MedicalRecordEntry::where(
                 'appointment_id',
@@ -112,14 +116,33 @@ class MedicalRecordEntryController extends Controller
             );
         }
 
-        $medicalRecordEntry = MedicalRecordEntry::create([
-            'medical_record_id' => $medicalRecord->id,
-            'appointment_id'    => $appointment->id,
-            'doctor_id'        => $doctor->id,
-            'diagnosis'        => $validated['diagnosis'],
-            'treatment'        => $validated['treatment'] ?? null,
-            'notes'            => $validated['notes'] ?? null,
-        ]);
+        try {
+            /*
+         * The database UNIQUE constraint on appointment_id is
+         * the final protection against race conditions.
+         */
+            $medicalRecordEntry = MedicalRecordEntry::create([
+                'medical_record_id' => $medicalRecord->id,
+                'appointment_id'    => $appointment->id,
+                'doctor_id'         => $doctor->id,
+                'diagnosis'         => $validated['diagnosis'],
+                'treatment'         => $validated['treatment'] ?? null,
+                'notes'             => $validated['notes'] ?? null,
+            ]);
+        } catch (QueryException $e) {
+            /*
+         * PostgreSQL uses SQLSTATE 23505 for unique constraint
+         * violations.
+         */
+            if ($e->getCode() === '23505') {
+                abort(
+                    409,
+                    'A medical record entry already exists for this appointment.'
+                );
+            }
+
+            throw $e;
+        }
 
         return redirect()
             ->route(
