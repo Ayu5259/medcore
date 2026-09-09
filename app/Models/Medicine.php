@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Medicine extends Model
 {
     protected $fillable = [
-        'user_id',
         'name',
         'generic_name',
         'manufacturer',

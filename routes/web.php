@@ -12,7 +12,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\MedicalRecordEntryController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\VisitReportController;
-
+use App\Http\Controllers\PrescriptionController;
 
 // Authentication Routes
 
@@ -187,4 +187,11 @@ Route::middleware('auth')->group(function () {
         '/visit-reports/{visitReport}',
         [VisitReportController::class, 'update']
     )->name('visit-reports.update');
+});
+
+
+Route::middleware('auth')->group(function () {
+
+    Route::resource('prescriptions', PrescriptionController::class)
+        ->except(['destroy']);
 });

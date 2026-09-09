@@ -6,15 +6,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    ```
     <title>Medical Record</title>
-    ```
-
 </head>
 
 <body>
 
-    ```
     <h1>Medical Record</h1>
 
     <h2>Patient</h2>
@@ -57,6 +53,19 @@
             {{ $entry->created_at->format('Y-m-d H:i') }}
         </p>
 
+        <p>
+            <a href="{{ route('medical-record-entries.show', $entry) }}">
+                View Entry
+            </a>
+
+            @can('update', $entry)
+            |
+            <a href="{{ route('medical-record-entries.edit', $entry) }}">
+                Edit Entry
+            </a>
+            @endcan
+        </p>
+
         <hr>
 
     </article>
@@ -66,7 +75,6 @@
     <p>No medical history available.</p>
 
     @endforelse
-    ```
 
 </body>
 
