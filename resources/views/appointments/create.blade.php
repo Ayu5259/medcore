@@ -1,5 +1,3 @@
-{{-- resources/views/appointments/create.blade.php --}}
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -36,14 +34,19 @@
         {{-- Laravel CSRF protection --}}
         @csrf
 
-        {{-- Doctor selection --}}
+        @php
+        $role = strtolower(auth()->user()->role->name ?? '');
+        @endphp
+
+        {{-- Patient selects the Doctor. --}}
+        @if ($role === 'patient')
+
         <div>
             <label for="doctor_id">Doctor:</label>
 
             <select name="doctor_id" id="doctor_id" required>
                 <option value="">Select a doctor</option>
 
-                {{-- Loop through the doctors passed from AppointmentController --}}
                 @foreach ($doctors as $doctor)
                 <option value="{{ $doctor->id }}">
                     Dr. {{ $doctor->user->first_name }}
@@ -53,6 +56,26 @@
             </select>
         </div>
 
+        {{-- Doctor selects the Patient. --}}
+        @elseif ($role === 'doctor')
+
+        <div>
+            <label for="patient_id">Patient:</label>
+
+            <select name="patient_id" id="patient_id" required>
+                <option value="">Select a patient</option>
+
+                @foreach ($patients as $patient)
+                <option value="{{ $patient->id }}">
+                    {{ $patient->user->first_name }}
+                    {{ $patient->user->last_name }}
+                </option>
+                @endforeach
+            </select>
+        </div>
+
+        @endif
+
         {{-- Appointment date --}}
         <div>
             <label for="appointment_date">Date:</label>
@@ -61,6 +84,7 @@
                 type="date"
                 name="appointment_date"
                 id="appointment_date"
+                value="{{ old('appointment_date') }}"
                 required>
         </div>
 
@@ -72,6 +96,7 @@
                 type="time"
                 name="appointment_start_time"
                 id="appointment_start_time"
+                value="{{ old('appointment_start_time') }}"
                 required>
         </div>
 
@@ -83,6 +108,7 @@
                 type="time"
                 name="appointment_end_time"
                 id="appointment_end_time"
+                value="{{ old('appointment_end_time') }}"
                 required>
         </div>
 
@@ -94,6 +120,7 @@
                 type="text"
                 name="reason"
                 id="reason"
+                value="{{ old('reason') }}"
                 required>
         </div>
 
@@ -103,10 +130,26 @@
 
             <select name="visit_type" id="visit_type" required>
                 <option value="">Select visit type</option>
-                <option value="InPerson">In Person</option>
-                <option value="Online">Online</option>
-                <option value="Emergency">Emergency</option>
-                <option value="FollowUp">Follow Up</option>
+
+                <option value="InPerson"
+                    {{ old('visit_type') === 'InPerson' ? 'selected' : '' }}>
+                    In Person
+                </option>
+
+                <option value="Online"
+                    {{ old('visit_type') === 'Online' ? 'selected' : '' }}>
+                    Online
+                </option>
+
+                <option value="Emergency"
+                    {{ old('visit_type') === 'Emergency' ? 'selected' : '' }}>
+                    Emergency
+                </option>
+
+                <option value="FollowUp"
+                    {{ old('visit_type') === 'FollowUp' ? 'selected' : '' }}>
+                    Follow Up
+                </option>
             </select>
         </div>
 
@@ -117,7 +160,7 @@
             <textarea
                 name="notes"
                 id="notes"
-                rows="4"></textarea>
+                rows="4">{{ old('notes') }}</textarea>
         </div>
 
         {{-- Submit the appointment request --}}
