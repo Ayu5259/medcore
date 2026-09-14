@@ -15,9 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('patient_id')->constrained();
             $table->foreignId('appointment_id')
-                ->nullable()
                 ->constrained()
-                ->nullOnDelete();
+                ->unique();
             $table->decimal('amount', 10, 2);
             $table->enum('method', [
                 'cash',

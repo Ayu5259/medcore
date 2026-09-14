@@ -12,6 +12,7 @@ class PrescriptionItem extends Model
     use HasFactory;
 
     protected $fillable = [
+        //Security
         'prescription_id',
         'medicine_id',
         'dosage',
