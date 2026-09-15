@@ -13,6 +13,7 @@ use App\Http\Controllers\MedicalRecordEntryController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\VisitReportController;
 use App\Http\Controllers\PrescriptionController;
+use App\Http\Controllers\PaymentController;
 
 // Authentication Routes
 
@@ -195,4 +196,21 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('prescriptions', PrescriptionController::class)
         ->except(['index', 'destroy']);
+});
+
+
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/payments', [PaymentController::class, 'index'])
+        ->name('payments.index');
+
+    Route::get('/payments/create', [PaymentController::class, 'create'])
+        ->name('payments.create');
+
+    Route::post('/payments', [PaymentController::class, 'store'])
+        ->name('payments.store');
+
+    Route::get('/payments/{payment}', [PaymentController::class, 'show'])
+        ->name('payments.show');
 });
