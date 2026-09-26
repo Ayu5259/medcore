@@ -20,7 +20,48 @@ class PrescriptionController extends Controller
     {
         Gate::authorize('viewAny', Prescription::class);
 
-        //
+        $user = Auth::user();
+
+        $query = Prescription::with([
+            'appointment.doctor.user',
+            'appointment.patient.user',
+            'prescriptionItems.medicine',
+        ]);
+
+        if ($user->role->name === 'Doctor') {
+
+            $doctor = $user->doctor;
+
+            if (!$doctor) {
+                abort(403);
+            }
+
+            $query->whereHas('appointment', function ($q) use ($doctor) {
+                $q->where('doctor_id', $doctor->id);
+            });
+        } elseif ($user->role->name === 'Patient') {
+
+            $patient = $user->patient;
+
+            if (!$patient) {
+                abort(403);
+            }
+
+            $query->whereHas('appointment', function ($q) use ($patient) {
+                $q->where('patient_id', $patient->id);
+            });
+        }
+
+
+        $prescriptions = $query
+            ->latest()
+            ->get();
+
+
+        return view(
+            'prescriptions.index',
+            compact('prescriptions')
+        );
     }
 
     /**

@@ -1,31 +1,125 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <title>MediCore Dashboard</title>
-</head>
+@section('title', 'Dashboard')
 
-<body>
+@section('content')
 
-    <h1>Welcome to MediCore</h1>
+<div class="mb-4">
 
-    <h2>
-        {{ $user->first_name }} {{ $user->last_name }}
-    </h2>
+    <h1 class="fw-bold">
+        Welcome to MediCore
+    </h1>
 
-    <p>Email: {{ $user->email }}</p>
+    <p class="text-muted mb-0">
+        Welcome back, {{ $user->first_name }} {{ $user->last_name }}.
+    </p>
 
-    <p>Role ID: {{ $user->role_id }}</p>
+</div>
 
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
 
-        <button type="submit">
-            Logout
-        </button>
-    </form>
+<div class="row g-4">
 
-</body>
+    <div class="col-md-6 col-xl-3">
 
-</html>
+        <div class="card shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Role
+                </h6>
+
+                <h5 class="card-title">
+                    {{ $user->role->name }}
+                </h5>
+
+                <p class="text-muted" class="mb-0">
+                    Account Type
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="card shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Role
+                </h6>
+
+                <h3 class="card-title">
+                    {{ $user->role_id }}
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Role ID
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="card shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Appointments
+                </h6>
+
+                <p class="text-muted mb-0">
+                    Manage your appointments
+                </p>
+
+                <a href="{{ route('appointments.index') }}"
+                    class="btn btn-primary btn-sm mt-3">
+                    View Appointments
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="card shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Payments
+                </h6>
+
+                <p class="text-muted mb-0">
+                    Manage your payments
+                </p>
+
+                <a href="{{ route('payments.index') }}"
+                    class="btn btn-primary btn-sm mt-3">
+                    View Payments
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@endsection

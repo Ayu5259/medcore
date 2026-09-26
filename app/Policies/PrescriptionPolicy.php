@@ -22,11 +22,16 @@ class PrescriptionPolicy
     }
 
     /**
-     * General listing is not allowed.
+     * Users can view their accessible prescriptions list.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        $role = strtolower(trim($user->role?->name ?? ''));
+
+        return in_array($role, [
+            'doctor',
+            'patient',
+        ]);
     }
 
     /**

@@ -1,190 +1,94 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Policies;
 
-use App\Models\Appointment;
 use App\Models\Payment;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
+use App\Models\User;
 
-class PaymentController extends Controller
+class PaymentPolicy
 {
     /**
-     * Display payments accessible to the current user.
+     * Admin users can perform all payment actions.
      */
-    public function index()
+    public function before(User $user, string $ability): bool|null
     {
-        Gate::authorize('viewAny', Payment::class);
+        $role = strtolower(trim($user->role?->name ?? ''));
 
-        $user = Auth::user();
+        if ($role === 'admin') {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
+     * Determine whether the user can view any payments.
+     */
+    public function viewAny(User $user): bool
+    {
+        $role = strtolower(trim($user->role?->name ?? ''));
+
+        return in_array($role, ['doctor', 'patient'], true);
+    }
+
+    /**
+     * Determine whether the user can view a payment.
+     */
+    public function view(User $user, Payment $payment): bool
+    {
         $role = strtolower(trim($user->role?->name ?? ''));
 
         if ($role === 'patient') {
-            $patient = $user->patient;
-
-            if (!$patient) {
-                abort(403);
-            }
-
-            $payments = Payment::where('patient_id', $patient->id)
-                ->with([
-                    'appointment.doctor.user',
-                ])
-                ->latest()
-                ->get();
-        } elseif ($role === 'doctor') {
-            $doctor = $user->doctor;
-
-            if (!$doctor) {
-                abort(403);
-            }
-
-            $payments = Payment::whereHas('appointment', function ($query) use ($doctor) {
-                $query->where('doctor_id', $doctor->id);
-            })
-                ->with([
-                    'patient.user',
-                    'appointment',
-                ])
-                ->latest()
-                ->get();
-        } else {
-            $payments = collect();
+            return $payment->patient_id === $user->patient?->id;
         }
 
-        return view(
-            'payments.index',
-            compact('payments')
-        );
+        if ($role === 'doctor') {
+            return $payment->appointment?->doctor_id ===
+                $user->doctor?->id;
+        }
+
+        return false;
     }
 
     /**
-     * Show appointments that the current patient can pay for.
+     * Determine whether the user can create a payment.
      */
-    public function create()
+    public function create(User $user): bool
     {
-        Gate::authorize('create', Payment::class);
+        $role = strtolower(trim($user->role?->name ?? ''));
 
-        $patient = Auth::user()?->patient;
-
-        if (!$patient) {
-            abort(403);
-        }
-
-        $appointments = Appointment::where('patient_id', $patient->id)
-            ->whereDoesntHave('payment')
-            ->with('doctor.user')
-            ->latest('appointment_date')
-            ->get();
-
-        return view(
-            'payments.create',
-            compact('appointments')
-        );
+        return $role === 'patient';
     }
 
     /**
-     * Create a payment for the patient's own appointment.
+     * Determine whether the user can update a payment.
      */
-    public function store(Request $request)
+    public function update(User $user, Payment $payment): bool
     {
-        Gate::authorize('create', Payment::class);
-
-        $validated = $request->validate([
-            'appointment_id' => [
-                'required',
-                'exists:appointments,id',
-            ],
-        ]);
-
-        $patient = Auth::user()?->patient;
-
-        if (!$patient) {
-            abort(403);
-        }
-
-        $appointment = Appointment::with('doctor')
-            ->where('id', $validated['appointment_id'])
-            ->where('patient_id', $patient->id)
-            ->firstOrFail();
-
-        if ($appointment->payment()->exists()) {
-            abort(
-                409,
-                'A payment already exists for this appointment.'
-            );
-        }
-
-        $doctor = $appointment->doctor;
-
-        if (!$doctor) {
-            abort(
-                422,
-                'This appointment has no assigned doctor.'
-            );
-        }
-
-        $payment = DB::transaction(function () use (
-            $appointment,
-            $patient,
-            $doctor
-        ) {
-            return Payment::create([
-                'patient_id' => $patient->id,
-                'appointment_id' => $appointment->id,
-                'amount' => $doctor->consultation_fee,
-                'method' => 'card',
-                'status' => 'pending',
-            ]);
-        });
-
-        return redirect()
-            ->route('payments.show', $payment)
-            ->with(
-                'success',
-                'Payment created successfully.'
-            );
+        return false;
     }
 
     /**
-     * Display a specific payment.
+     * Determine whether the user can delete a payment.
      */
-    public function show(Payment $payment)
+    public function delete(User $user, Payment $payment): bool
     {
-        Gate::authorize('view', $payment);
-
-        $payment->load([
-            'patient.user',
-            'appointment.doctor.user',
-        ]);
-
-        return view(
-            'payments.show',
-            compact('payment')
-        );
+        return false;
     }
 
     /**
-     * Payments cannot be updated.
+     * Determine whether the user can restore a payment.
      */
-    public function update(
-        Request $request,
-        Payment $payment
-    ) {
-        Gate::authorize('update', $payment);
-
-        abort(403);
-    }
-
-    /**
-     * Payments cannot be deleted.
-     */
-    public function destroy(Payment $payment)
+    public function restore(User $user, Payment $payment): bool
     {
-        Gate::authorize('delete', $payment);
+        return false;
+    }
 
-        abort(403);
+    /**
+     * Determine whether the user can permanently delete a payment.
+     */
+    public function forceDelete(User $user, Payment $payment): bool
+    {
+        return false;
     }
 }

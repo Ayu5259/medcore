@@ -161,6 +161,8 @@ Route::get('/medical-records/{medicalRecord}', [MedicalRecordController::class, 
     ->middleware('auth')
     ->name('medical_records.show');
 
+Route::get('/medical-records', [MedicalRecordController::class, 'index'])
+    ->name('medical_records.index');
 
 // Visit Report
 Route::middleware('auth')->group(function () {
@@ -197,7 +199,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('prescriptions', PrescriptionController::class)
         ->except(['index', 'destroy']);
 });
-
+Route::get('/prescriptions', [PrescriptionController::class, 'index'])
+    ->name('prescriptions.index');
 
 
 Route::middleware(['auth'])->group(function () {
