@@ -11,37 +11,52 @@
 </head>
 
 <body class="bg-light">
+
     @php
-    $role = auth()->user()->role->name;
+    $user = auth()->user();
+    $role = $user?->role?->name;
+    $currentRoute = Route::currentRouteName();
+
+    $isDoctor = $role === 'Doctor';
+    $isPatient = $role === 'Patient';
+    $isAdmin = $role === 'Admin';
     @endphp
 
-    <nav class="navbar navbar-dark bg-dark">
+
+    {{-- Top Navbar --}}
+
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
+
         <div class="container-fluid">
 
-            <a class="navbar-brand" href="{{ route('dashboard') }}">
+            <a class="navbar-brand fw-semibold"
+                href="{{ route('dashboard') }}">
                 MediCore
             </a>
+
 
             <div class="d-flex align-items-center gap-3">
 
                 <div class="text-end text-white">
 
-                    <div>
-                        {{ auth()->user()->first_name }}
-                        {{ auth()->user()->last_name }}
+                    <div class="fw-semibold">
+                        {{ $user->first_name }}
+                        {{ $user->last_name }}
                     </div>
 
                     <small class="text-light opacity-75">
-                        {{ auth()->user()->role->name }}
+                        {{ $role }}
                     </small>
 
                 </div>
 
 
                 <form method="POST" action="{{ route('logout') }}">
+
                     @csrf
 
-                    <button type="submit" class="btn btn-outline-light btn-sm">
+                    <button type="submit"
+                        class="btn btn-outline-light btn-sm">
                         Logout
                     </button>
 
@@ -50,87 +65,333 @@
             </div>
 
         </div>
+
     </nav>
 
+
+
+    {{-- Main Layout --}}
 
     <div class="container-fluid">
 
         <div class="row min-vh-100">
 
+
+            {{-- Sidebar --}}
+
             <aside class="col-md-3 col-lg-2 bg-white border-end p-3">
 
-                <h6 class="text-muted mb-3">
-                    MENU
-                </h6>
 
+                {{-- Dashboard --}}
 
-                <div class="nav flex-column gap-1">
+                <div class="sidebar-menu">
 
                     <a href="{{ route('dashboard') }}"
-                        class="nav-link text-dark">
+                        class="sidebar-link
+                       {{ $currentRoute === 'dashboard'
+                            ? 'active'
+                            : '' }}">
+
                         Dashboard
+
                     </a>
 
                 </div>
 
-                <h6 class="text-muted mt-4 mb-3">
-                    CLINICAL
-                </h6>
 
 
-                <div class="nav flex-column gap-1">
+                {{------------------------------DOCTOR-----------------------------------------}}
 
-                    @if(in_array($role, ['Admin', 'Doctor', 'Patient']))
+                @if($isDoctor)
+                {{-- Appointments --}}
 
-                    <a href="{{ route('appointments.index') }}"
-                        class="nav-link text-dark">
-                        Appointments
-                    </a>
+                <div class="sidebar-section">
 
-                    @endif
+                    <button type="button"
+                        class="sidebar-toggle"
+                        data-menu="appointmentsMenu">
+
+                        <span>Appointments</span>
+
+                        <span class="sidebar-arrow">
+                            ▾
+                        </span>
+
+                    </button>
 
 
-                    @if(in_array($role, ['Admin', 'Doctor', 'Patient']))
+                    <div id="appointmentsMenu"
+                        class="sidebar-submenu">
+
+                        <a href="{{ route('appointments.index') }}"
+                            class="sidebar-sublink">
+
+                            All Appointments
+
+                        </a>
+
+
+                        <a href="{{ route('appointments.create') }}"
+                            class="sidebar-sublink">
+
+                            Create Appointment
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+
+                {{-- Patients --}}
+
+                <div class="sidebar-section">
+
+                    <button type="button"
+                        class="sidebar-toggle"
+                        data-menu="patientsMenu">
+
+                        <span>Patients</span>
+
+                        <span class="sidebar-arrow">
+                            ▾
+                        </span>
+
+                    </button>
+
+
+                    <div id="patientsMenu"
+                        class="sidebar-submenu">
+
+                        {{-- Route will be added later --}}
+
+                        <span class="sidebar-sublink disabled">
+                            My Patients
+                        </span>
+
+
+                        <span class="sidebar-sublink disabled">
+                            Patient Medical Records
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                {{-- Medical Records --}}
+
+                <div class="sidebar-section">
 
                     <a href="{{ route('medical_records.index') }}"
-                        class="nav-link text-dark">
+                        class="sidebar-link
+                           {{ str_starts_with($currentRoute ?? '', 'medical_records.')
+                                ? 'active'
+                                : '' }}">
+
                         Medical Records
+
                     </a>
-
-                    @endif
-
-
-                    @if(in_array($role, ['Admin', 'Doctor', 'Patient']))
-
-                    <a href="{{ route('prescriptions.index') }}"
-                        class="nav-link text-dark">
-                        Prescriptions
-                    </a>
-
-                    @endif
 
                 </div>
 
+
+
+                {{-- Prescriptions --}}
+
+                <div class="sidebar-section">
+
+                    <button type="button"
+                        class="sidebar-toggle"
+                        data-menu="prescriptionsMenu">
+
+                        <span>Prescriptions</span>
+
+                        <span class="sidebar-arrow">
+                            ▾
+                        </span>
+
+                    </button>
+
+
+                    <div id="prescriptionsMenu"
+                        class="sidebar-submenu">
+
+                        <a href="{{ route('prescriptions.index') }}"
+                            class="sidebar-sublink">
+
+                            All Prescriptions
+
+                        </a>
+
+
+                        <a href="{{ route('prescriptions.create') }}"
+                            class="sidebar-sublink">
+
+                            Create Prescription
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+
+                {{-- Finance --}}
+
+                <div class="sidebar-section">
+
+                    <button type="button"
+                        class="sidebar-toggle"
+                        data-menu="financeMenu">
+
+                        <span>Finance</span>
+
+                        <span class="sidebar-arrow">
+                            ▾
+                        </span>
+
+                    </button>
+
+
+                    <div id="financeMenu"
+                        class="sidebar-submenu">
+
+                        <a href="{{ route('payments.index') }}"
+                            class="sidebar-sublink">
+
+                            Payments
+
+                        </a>
+
+
+                        {{-- Route will be added later --}}
+
+                        <span class="sidebar-sublink disabled">
+                            Payment History
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                {{-- Account --}}
+
+
+                <div class="sidebar-section">
+
+                    {{-- Route will be added later --}}
+
+                    <span class="sidebar-link disabled">
+                        Profile
+                    </span>
+
+                </div>
+
+                @endif
+
+
+
+                {{---------------------------------------PATIENT-------------------------------------}}
+
+                @if($isPatient)
+
+                <div class="sidebar-section">
+
+                    <a href="{{ route('appointments.index') }}"
+                        class="sidebar-link">
+
+                        Appointments
+
+                    </a>
+
+
+                    <a href="{{ route('medical_records.index') }}"
+                        class="sidebar-link">
+
+                        Medical Records
+
+                    </a>
+
+
+                    <a href="{{ route('prescriptions.index') }}"
+                        class="sidebar-link">
+
+                        Prescriptions
+
+                    </a>
+
+                </div>
+
+
+
+                <div class="sidebar-section">
+
+                    <a href="{{ route('payments.index') }}"
+                        class="sidebar-link">
+
+                        Payments
+
+                    </a>
+
+                </div>
+
+                @endif
+
+
+
+                {{------------------------------ADMIN----------------------------}}
+
+                @if($isAdmin)
+
                 <h6 class="text-muted mt-4 mb-3">
-                    FINANCE
+                    ADMINISTRATION
                 </h6>
 
 
-                <div class="nav flex-column gap-1">
+                <div class="sidebar-section">
 
-                    @if(in_array($role, ['Admin', 'Patient']))
-                    <a href="{{ route('payments.index') }}"
-                        class="nav-link text-dark">
-                        Payments
+                    <a href="{{ route('admin') }}"
+                        class="sidebar-link">
+
+                        Admin Panel
+
                     </a>
-                    @endif
 
                 </div>
 
+                @endif
 
             </aside>
 
+
+
+            {{-- Page Content --}}
+
             <main class="col-md-9 col-lg-10 p-4">
+
+                @if(session('success'))
+
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+
+                @endif
+
+
+                @if(session('error'))
+
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+
+                @endif
+
 
                 @yield('content')
 
@@ -139,6 +400,65 @@
         </div>
 
     </div>
+
+
+
+    {{-- Sidebar JavaScript --}}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const buttons = document.querySelectorAll('.sidebar-toggle');
+
+
+            buttons.forEach(function(button) {
+
+                button.addEventListener('click', function() {
+
+                    const menuId = button.dataset.menu;
+                    const menu = document.getElementById(menuId);
+
+                    if (!menu) {
+                        return;
+                    }
+
+
+                    const isOpen = menu.classList.contains('show');
+
+
+                    // Close all submenus
+
+                    document.querySelectorAll('.sidebar-submenu.show')
+                        .forEach(function(openMenu) {
+
+                            openMenu.classList.remove('show');
+
+                        });
+
+
+                    document.querySelectorAll('.sidebar-toggle.open')
+                        .forEach(function(openButton) {
+
+                            openButton.classList.remove('open');
+
+                        });
+
+
+                    // Open selected submenu
+
+                    if (!isOpen) {
+
+                        menu.classList.add('show');
+                        button.classList.add('open');
+
+                    }
+
+                });
+
+            });
+
+        });
+    </script>
 
 </body>
 

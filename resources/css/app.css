@@ -1,9 +1,93 @@
-@import 'tailwindcss';
 @import 'bootstrap/dist/css/bootstrap.min.css';
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+.btn-toggle {
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: transparent;
+}
+
+.btn-toggle:hover {
+    background-color: #f8f9fa;
+}
+
+.btn-toggle:focus {
+    box-shadow: none;
+}
+.sidebar-link,
+.sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    padding: 0.55rem 0.75rem;
+
+    border: none;
+    border-radius: 0.375rem;
+
+    background: transparent;
+
+    color: #212529;
+
+    text-decoration: none;
+
+    font-size: 0.95rem;
+
+    cursor: pointer;
+}
+
+.sidebar-link:hover,
+.sidebar-toggle:hover {
+    background-color: #f1f3f5;
+    color: #0d6efd;
+}
+
+.sidebar-link.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.sidebar-submenu {
+    display: none;
+
+    margin-left: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.sidebar-submenu.show {
+    display: block;
+}
+
+.sidebar-sublink {
+    display: block;
+
+    padding: 0.4rem 0.75rem;
+
+    color: #6c757d;
+
+    text-decoration: none;
+
+    font-size: 0.9rem;
+
+    border-radius: 0.375rem;
+}
+
+.sidebar-sublink:hover {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+}
+
+.sidebar-sublink.disabled,
+.sidebar-link.disabled {
+    color: #adb5bd;
+    cursor: default;
+}
+
+.sidebar-arrow {
+    transition: transform 0.2s ease;
+}
+
+.sidebar-toggle.open .sidebar-arrow {
+    transform: rotate(180deg);
 }

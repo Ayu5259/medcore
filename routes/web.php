@@ -18,25 +18,21 @@ use App\Http\Controllers\PaymentController;
 // Authentication Routes
 
 // Show the login form.
-Route::get('/login', [LoginController::class, 'showLoginForm']);
-
+Route::get('/login', [LoginController::class, 'showLoginForm'])
+    ->name('login');
 
 // Process login request.
 Route::post('/login', [LoginController::class, 'login']);
-
 
 // Show the registration form.
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])
     ->name('register');
 
-
 // Process the registration request.
 Route::post('/register', [RegisterController::class, 'register'])
     ->name('register.store');
 
-
 // Logout.
-// Only authenticated users can logout.
 Route::post('/logout', function (Request $request) {
 
     Auth::logout();
@@ -46,7 +42,6 @@ Route::post('/logout', function (Request $request) {
 
     return redirect()->route('login');
 })->middleware('auth')->name('logout');
-
 
 // Dashboard.
 // Dashboard is available to all authenticated users.
