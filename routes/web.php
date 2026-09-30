@@ -14,6 +14,7 @@ use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\VisitReportController;
 use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PatientController;
 
 // Authentication Routes
 
@@ -212,3 +213,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payments/{payment}', [PaymentController::class, 'show'])
         ->name('payments.show');
 });
+
+// Patient Routes.
+
+// Display the list of patients.
+Route::get('/patients', [PatientController::class, 'index'])
+    ->middleware(['auth', 'role:doctor'])
+    ->name('patients.index');

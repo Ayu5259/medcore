@@ -13,27 +13,48 @@ use Illuminate\Support\Facades\Gate;
 class AppointmentController extends Controller
 {
     /**
-     * Display appointments for the authenticated patient.
+     * Display appointments for the authenticated user.
      */
     public function index(Request $request)
     {
         Gate::authorize('viewAny', Appointment::class);
 
-        $patient = $request->user()->patient;
+        $user = $request->user();
 
-        if (!$patient) {
-            abort(403, 'Authenticated user is not a patient.');
+        // Patient sees their own appointments.
+        if ($user->patient) {
+
+            $appointments = $user->patient
+                ->appointments()
+                ->with([
+                    'doctor.user',
+                    'patient.user',
+                ])
+                ->latest('appointment_date')
+                ->latest('appointment_start_time')
+                ->get();
+
+            return view('appointments.index', compact('appointments'));
         }
 
-        $appointments = $patient->appointments()
-            ->with('doctor.user')
-            ->latest('appointment_date')
-            ->get();
+        // Doctor sees appointments assigned to them.
+        if ($user->doctor) {
 
-        return view('appointments.index', compact('appointments'));
+            $appointments = $user->doctor
+                ->appointments()
+                ->with([
+                    'doctor.user',
+                    'patient.user',
+                ])
+                ->latest('appointment_date')
+                ->latest('appointment_start_time')
+                ->get();
+
+            return view('appointments.index', compact('appointments'));
+        }
+
+        abort(403, 'User does not have a valid Patient or Doctor profile.');
     }
-
-
     /**
      * Display the appointment creation form.
      */

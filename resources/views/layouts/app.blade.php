@@ -164,16 +164,14 @@
                     <div id="patientsMenu"
                         class="sidebar-submenu">
 
-                        {{-- Route will be added later --}}
+                        <a href="{{ route('patients.index') }}"
+                            class="sidebar-sublink {{ request()->routeIs('patients.index') ? 'active' : '' }}">
+                            All Patients
+                        </a>
 
-                        <span class="sidebar-sublink disabled">
-                            My Patients
-                        </span>
 
 
-                        <span class="sidebar-sublink disabled">
-                            Patient Medical Records
-                        </span>
+
 
                     </div>
 
