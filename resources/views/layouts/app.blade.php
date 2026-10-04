@@ -34,7 +34,6 @@
                 MediCore
             </a>
 
-
             <div class="d-flex align-items-center gap-3">
 
                 <div class="text-end text-white">
@@ -49,7 +48,6 @@
                     </small>
 
                 </div>
-
 
                 <form method="POST" action="{{ route('logout') }}">
 
@@ -69,7 +67,6 @@
     </nav>
 
 
-
     {{-- Main Layout --}}
 
     <div class="container-fluid">
@@ -87,10 +84,7 @@
                 <div class="sidebar-menu">
 
                     <a href="{{ route('dashboard') }}"
-                        class="sidebar-link
-                       {{ $currentRoute === 'dashboard'
-                            ? 'active'
-                            : '' }}">
+                        class="sidebar-link {{ $currentRoute === 'dashboard' ? 'active' : '' }}">
 
                         Dashboard
 
@@ -99,10 +93,12 @@
                 </div>
 
 
-
-                {{------------------------------DOCTOR-----------------------------------------}}
+                {{-- =========================
+                     DOCTOR
+                ========================== --}}
 
                 @if($isDoctor)
+
                 {{-- Appointments --}}
 
                 <div class="sidebar-section">
@@ -119,7 +115,6 @@
 
                     </button>
 
-
                     <div id="appointmentsMenu"
                         class="sidebar-submenu">
 
@@ -129,7 +124,6 @@
                             All Appointments
 
                         </a>
-
 
                         <a href="{{ route('appointments.create') }}"
                             class="sidebar-sublink">
@@ -141,7 +135,6 @@
                     </div>
 
                 </div>
-
 
 
                 {{-- Patients --}}
@@ -160,23 +153,28 @@
 
                     </button>
 
-
                     <div id="patientsMenu"
                         class="sidebar-submenu">
 
                         <a href="{{ route('patients.index') }}"
-                            class="sidebar-sublink {{ request()->routeIs('patients.index') ? 'active' : '' }}">
+                            class="sidebar-sublink
+                                {{ request()->routeIs('patients.index') ? 'active' : '' }}">
+
                             All Patients
+
                         </a>
 
+                        <a href="{{ route('medical_records.index') }}"
+                            class="sidebar-sublink
+                                {{ request()->routeIs('medical_records.*') ? 'active' : '' }}">
 
+                            Patient Medical Records
 
-
+                        </a>
 
                     </div>
 
                 </div>
-
 
 
                 {{-- Medical Records --}}
@@ -185,16 +183,13 @@
 
                     <a href="{{ route('medical_records.index') }}"
                         class="sidebar-link
-                           {{ str_starts_with($currentRoute ?? '', 'medical_records.')
-                                ? 'active'
-                                : '' }}">
+                            {{ request()->routeIs('medical_records.*') ? 'active' : '' }}">
 
                         Medical Records
 
                     </a>
 
                 </div>
-
 
 
                 {{-- Prescriptions --}}
@@ -213,7 +208,6 @@
 
                     </button>
 
-
                     <div id="prescriptionsMenu"
                         class="sidebar-submenu">
 
@@ -223,7 +217,6 @@
                             All Prescriptions
 
                         </a>
-
 
                         <a href="{{ route('prescriptions.create') }}"
                             class="sidebar-sublink">
@@ -235,7 +228,6 @@
                     </div>
 
                 </div>
-
 
 
                 {{-- Finance --}}
@@ -254,7 +246,6 @@
 
                     </button>
 
-
                     <div id="financeMenu"
                         class="sidebar-submenu">
 
@@ -265,37 +256,37 @@
 
                         </a>
 
+                        <a href="{{ route('payments.history') }}"
+                            class="sidebar-sublink">
 
-                        {{-- Route will be added later --}}
-
-                        <span class="sidebar-sublink disabled">
                             Payment History
-                        </span>
+
+                        </a>
 
                     </div>
 
                 </div>
 
 
-
-                {{-- Account --}}
-
+                {{-- Profile --}}
 
                 <div class="sidebar-section">
 
-                    {{-- Route will be added later --}}
+                    <a href="{{ route('profile.show') }}"
+                        class="sidebar-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
 
-                    <span class="sidebar-link disabled">
                         Profile
-                    </span>
+
+                    </a>
 
                 </div>
 
                 @endif
 
 
-
-                {{---------------------------------------PATIENT-------------------------------------}}
+                {{-- =========================
+                     PATIENT
+                ========================== --}}
 
                 @if($isPatient)
 
@@ -308,14 +299,12 @@
 
                     </a>
 
-
                     <a href="{{ route('medical_records.index') }}"
                         class="sidebar-link">
 
                         Medical Records
 
                     </a>
-
 
                     <a href="{{ route('prescriptions.index') }}"
                         class="sidebar-link">
@@ -325,8 +314,6 @@
                     </a>
 
                 </div>
-
-
 
                 <div class="sidebar-section">
 
@@ -342,15 +329,15 @@
                 @endif
 
 
-
-                {{------------------------------ADMIN----------------------------}}
+                {{-- =========================
+                     ADMIN
+                ========================== --}}
 
                 @if($isAdmin)
 
                 <h6 class="text-muted mt-4 mb-3">
                     ADMINISTRATION
                 </h6>
-
 
                 <div class="sidebar-section">
 
@@ -368,7 +355,6 @@
             </aside>
 
 
-
             {{-- Page Content --}}
 
             <main class="col-md-9 col-lg-10 p-4">
@@ -381,7 +367,6 @@
 
                 @endif
 
-
                 @if(session('error'))
 
                 <div class="alert alert-danger">
@@ -389,7 +374,6 @@
                 </div>
 
                 @endif
-
 
                 @yield('content')
 
@@ -400,14 +384,12 @@
     </div>
 
 
-
     {{-- Sidebar JavaScript --}}
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
             const buttons = document.querySelectorAll('.sidebar-toggle');
-
 
             buttons.forEach(function(button) {
 
@@ -420,12 +402,9 @@
                         return;
                     }
 
-
                     const isOpen = menu.classList.contains('show');
 
-
                     // Close all submenus
-
                     document.querySelectorAll('.sidebar-submenu.show')
                         .forEach(function(openMenu) {
 
@@ -433,7 +412,7 @@
 
                         });
 
-
+                    // Close all open buttons
                     document.querySelectorAll('.sidebar-toggle.open')
                         .forEach(function(openButton) {
 
@@ -441,9 +420,7 @@
 
                         });
 
-
                     // Open selected submenu
-
                     if (!isOpen) {
 
                         menu.classList.add('show');

@@ -353,4 +353,45 @@ class PaymentController extends Controller
 
         abort(403);
     }
+    /**
+     * Display payment history for the authenticated doctor.
+     */
+    public function history()
+    {
+        Gate::authorize('viewAny', Payment::class);
+
+        $user = Auth::user();
+
+        $role = strtolower(
+            trim($user->role?->name ?? '')
+        );
+
+        if ($role !== 'doctor') {
+            abort(403);
+        }
+
+        if (!$user->doctor) {
+            abort(403, 'Authenticated user is not a doctor.');
+        }
+
+        $payments = Payment::with([
+            'patient.user',
+            'appointment.doctor.user',
+        ])
+            ->whereHas('appointment', function ($query) use ($user) {
+                $query->where(
+                    'doctor_id',
+                    $user->doctor->id
+                );
+            })
+            ->latest()
+            ->get();
+
+
+        return view(
+            'payments.history',
+            compact('payments')
+        );
+        // return 'Bego bekhoda is working';
+    }
 }

@@ -15,6 +15,7 @@ use App\Http\Controllers\VisitReportController;
 use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\ProfileController;
 
 // Authentication Routes
 
@@ -199,6 +200,9 @@ Route::get('/prescriptions', [PrescriptionController::class, 'index'])
     ->name('prescriptions.index');
 
 
+
+// payments Routes.
+
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/payments', [PaymentController::class, 'index'])
@@ -209,10 +213,23 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/payments', [PaymentController::class, 'store'])
         ->name('payments.store');
+});
+
+Route::middleware(['auth', 'role:doctor'])->group(function () {
+
+    Route::get(
+        '/payments/history',
+        [PaymentController::class, 'history']
+    )->name('payments.history');
+});
+
+Route::middleware(['auth'])->group(function () {
+
 
     Route::get('/payments/{payment}', [PaymentController::class, 'show'])
         ->name('payments.show');
 });
+
 
 // Patient Routes.
 
@@ -220,3 +237,13 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/patients', [PatientController::class, 'index'])
     ->middleware(['auth', 'role:doctor'])
     ->name('patients.index');
+
+// profile Routes.
+Route::get('/profile', [ProfileController::class, 'show'])
+    ->name('profile.show');
+
+Route::get('/profile/edit', [ProfileController::class, 'edit'])
+    ->name('profile.edit');
+
+Route::put('/profile', [ProfileController::class, 'update'])
+    ->name('profile.update');
