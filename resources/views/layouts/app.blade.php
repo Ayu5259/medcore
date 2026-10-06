@@ -135,7 +135,16 @@
                     </div>
 
                 </div>
+                <div class="sidebar-section">
 
+                    <a href="{{ route('doctor-schedules.index') }}"
+                        class="sidebar-link {{ request()->routeIs('doctor-schedules.*') ? 'active' : '' }}">
+
+                        Schedule / Calendar
+
+                    </a>
+
+                </div>
 
                 {{-- Patients --}}
 
@@ -298,7 +307,16 @@
                         Appointments
 
                     </a>
+                    <div class="sidebar-section">
 
+                        <a href="{{ route('doctor-schedules.index') }}"
+                            class="sidebar-link {{ request()->routeIs('doctor-schedules.*') ? 'active' : '' }}">
+
+                            Doctor Schedule
+
+                        </a>
+
+                    </div>
                     <a href="{{ route('medical_records.index') }}"
                         class="sidebar-link">
 

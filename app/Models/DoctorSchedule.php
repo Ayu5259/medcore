@@ -17,9 +17,9 @@ class DoctorSchedule extends Model
         'end_time',
     ];
 
-    protected $casts = [
-        'is_available' => 'boolean',
-    ];
+    // protected $casts = [
+    //     'is_available' => 'boolean',
+    // ];
 
     public function doctor(): BelongsTo
     {

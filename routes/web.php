@@ -16,6 +16,7 @@ use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DoctorScheduleController;
 
 // Authentication Routes
 
@@ -247,3 +248,26 @@ Route::get('/profile/edit', [ProfileController::class, 'edit'])
 
 Route::put('/profile', [ProfileController::class, 'update'])
     ->name('profile.update');
+
+
+Route::middleware('auth')->group(function () {
+
+    // Doctor Schedule
+    Route::get('/doctor-schedules', [DoctorScheduleController::class, 'index'])
+        ->name('doctor-schedules.index');
+
+    Route::get('/doctor-schedules/create', [DoctorScheduleController::class, 'create'])
+        ->name('doctor-schedules.create');
+
+    Route::post('/doctor-schedules', [DoctorScheduleController::class, 'store'])
+        ->name('doctor-schedules.store');
+
+    Route::get('/doctor-schedules/{doctorSchedule}/edit', [DoctorScheduleController::class, 'edit'])
+        ->name('doctor-schedules.edit');
+
+    Route::put('/doctor-schedules/{doctorSchedule}', [DoctorScheduleController::class, 'update'])
+        ->name('doctor-schedules.update');
+
+    Route::delete('/doctor-schedules/{doctorSchedule}', [DoctorScheduleController::class, 'destroy'])
+        ->name('doctor-schedules.destroy');
+});

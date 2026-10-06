@@ -66,7 +66,11 @@ class AppointmentController extends Controller
 
         // Patient selects a doctor.
         if ($user->patient) {
-            $doctors = Doctor::with('user')->get();
+
+            $doctors = Doctor::with([
+                'user',
+                'specialty',
+            ])->get();
 
             return view(
                 'appointments.create',
@@ -74,26 +78,40 @@ class AppointmentController extends Controller
             );
         }
 
-        // Doctor selects a patient they have treated before.
+        // Doctor selects a patient.
         if ($user->doctor) {
+
             $patients = Patient::query()
-                ->whereHas('appointments', function ($query) use ($user) {
-                    $query->where('doctor_id', $user->doctor->id);
-                })
                 ->with('user')
-                ->distinct()
+                ->get();
+
+            $schedules = DoctorSchedule::query()
+                ->where('doctor_id', $user->doctor->id)
+                ->orderByRaw("
+            CASE day_of_week
+                WHEN 'شنبه' THEN 1
+                WHEN 'یکشنبه' THEN 2
+                WHEN 'دوشنبه' THEN 3
+                WHEN 'سه‌شنبه' THEN 4
+                WHEN 'چهارشنبه' THEN 5
+                WHEN 'پنجشنبه' THEN 6
+                WHEN 'جمعه' THEN 7
+            END
+        ")
+                ->orderBy('start_time')
                 ->get();
 
             return view(
                 'appointments.create',
-                compact('patients')
+                compact('patients', 'schedules')
             );
         }
 
-        abort(403, 'User does not have a valid Patient or Doctor profile.');
+        abort(
+            403,
+            'User does not have a valid Patient or Doctor profile.'
+        );
     }
-
-
     /**
      * Display the specified appointment.
      */
