@@ -140,6 +140,37 @@ class DoctorScheduleController extends Controller
 
         $doctor = $request->user()->doctor;
 
+        /*
+     * Prevent overlapping schedules for the same doctor.
+     * These schedules overlap and are not allowed.
+     */
+        $hasOverlap = DoctorSchedule::query()
+            ->where('doctor_id', $doctor->id)
+            ->where('day_of_week', $validated['day_of_week'])
+            ->where(function ($query) use ($validated) {
+                $query
+                    ->where(
+                        'start_time',
+                        '<',
+                        $validated['end_time']
+                    )
+                    ->where(
+                        'end_time',
+                        '>',
+                        $validated['start_time']
+                    );
+            })
+            ->exists();
+
+        if ($hasOverlap) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'start_time' =>
+                    'This schedule overlaps with an existing schedule for this day.',
+                ]);
+        }
+
         DoctorSchedule::create([
             'doctor_id' => $doctor->id,
             'day_of_week' => $validated['day_of_week'],
@@ -151,7 +182,6 @@ class DoctorScheduleController extends Controller
             ->route('doctor-schedules.index')
             ->with('success', 'Schedule added successfully.');
     }
-
     /**
      * Show the form for editing a schedule.
      */
@@ -199,6 +229,39 @@ class DoctorScheduleController extends Controller
                 'after:start_time',
             ],
         ]);
+
+        /*
+     * Prevent this schedule from overlapping
+     * with another schedule of the same doctor.
+     * The current schedule is excluded from the query.
+     */
+        $hasOverlap = DoctorSchedule::query()
+            ->where('doctor_id', $doctorSchedule->doctor_id)
+            ->where('day_of_week', $validated['day_of_week'])
+            ->where('id', '!=', $doctorSchedule->id)
+            ->where(function ($query) use ($validated) {
+                $query
+                    ->where(
+                        'start_time',
+                        '<',
+                        $validated['end_time']
+                    )
+                    ->where(
+                        'end_time',
+                        '>',
+                        $validated['start_time']
+                    );
+            })
+            ->exists();
+
+        if ($hasOverlap) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'start_time' =>
+                    'This schedule overlaps with an existing schedule for this day.',
+                ]);
+        }
 
         $doctorSchedule->update([
             'day_of_week' => $validated['day_of_week'],
