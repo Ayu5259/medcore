@@ -80,6 +80,12 @@ Route::get('/appointments/create', [AppointmentController::class, 'create'])
     ->middleware('auth')
     ->name('appointments.create');
 
+// Display available Slots  
+Route::get(
+    '/appointments/available-slots',
+    [AppointmentController::class, 'availableSlots']
+)->name('appointments.available-slots');
+
 // Store appointment
 Route::post('/appointments', [AppointmentController::class, 'store'])
     ->middleware('auth')

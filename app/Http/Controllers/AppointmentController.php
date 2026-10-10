@@ -113,6 +113,110 @@ class AppointmentController extends Controller
         );
     }
     /**
+     * Display the available Slots for Resevation.
+     */
+    public function availableSlots(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'date' => ['required', 'date', 'after_or_equal:today'],
+            'doctor_id' => ['nullable', 'required_if:role,patient', 'exists:doctors,id'],
+        ]);
+
+        // Determine which doctor's availability to check.
+        if ($user->patient) {
+            $request->validate([
+                'doctor_id' => ['required', 'exists:doctors,id'],
+            ]);
+
+            $doctorId = (int) $validated['doctor_id'];
+        } elseif ($user->doctor) {
+            $doctorId = $user->doctor->id;
+        } else {
+            abort(403, 'Only doctors and patients can check available slots.');
+        }
+
+        $date = Carbon::parse($validated['date']);
+
+        $days = [
+            0 => 'یکشنبه',
+            1 => 'دوشنبه',
+            2 => 'سه‌شنبه',
+            3 => 'چهارشنبه',
+            4 => 'پنجشنبه',
+            5 => 'جمعه',
+            6 => 'شنبه',
+        ];
+
+        $dayOfWeek = $days[$date->dayOfWeek];
+
+        $schedules = DoctorSchedule::query()
+            ->where('doctor_id', $doctorId)
+            ->where('day_of_week', $dayOfWeek)
+            ->orderBy('start_time')
+            ->get();
+
+        $appointments = Appointment::query()
+            ->where('doctor_id', $doctorId)
+            ->whereDate('appointment_date', $date->toDateString())
+            ->where('status', '!=', 'cancelled')
+            ->get([
+                'appointment_start_time',
+                'appointment_end_time',
+            ]);
+
+        $slots = [];
+
+        foreach ($schedules as $schedule) {
+            $start = Carbon::parse($schedule->start_time);
+            $end = Carbon::parse($schedule->end_time);
+
+            while ($start->copy()->addMinutes(30)->lte($end)) {
+                $slotStart = $start->copy();
+                $slotEnd = $start->copy()->addMinutes(30);
+
+                // Skip slots that have already passed today.
+                if (
+                    $date->isToday()
+                    && $slotStart->lte(Carbon::now())
+                ) {
+                    $start->addMinutes(30);
+                    continue;
+                }
+
+                $hasConflict = $appointments->contains(
+                    function ($appointment) use ($slotStart, $slotEnd) {
+                        $appointmentStart = Carbon::parse(
+                            $appointment->appointment_start_time
+                        );
+
+                        $appointmentEnd = Carbon::parse(
+                            $appointment->appointment_end_time
+                        );
+
+                        return $appointmentStart->lt($slotEnd)
+                            && $appointmentEnd->gt($slotStart);
+                    }
+                );
+
+                if (! $hasConflict) {
+                    $slots[] = [
+                        'start' => $slotStart->format('H:i'),
+                        'end' => $slotEnd->format('H:i'),
+                    ];
+                }
+
+                $start->addMinutes(30);
+            }
+        }
+
+        return response()->json([
+            'date' => $date->toDateString(),
+            'slots' => $slots,
+        ]);
+    }
+    /**
      * Display the specified appointment.
      */
     public function show(Appointment $appointment)
