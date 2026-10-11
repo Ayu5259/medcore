@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\DoctorSchedule;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
@@ -93,6 +94,57 @@ class DoctorScheduleController extends Controller
             'schedules',
             'appointments'
         ));
+    }
+
+    /**
+     * Display the weekly appointment calendar.
+     */
+    public function calendar(Request $request)
+    {
+        Gate::authorize('viewAny', DoctorSchedule::class);
+
+        $validated = $request->validate([
+            'week' => ['nullable', 'date'],
+        ]);
+
+        $weekDate = Carbon::parse(
+            $validated['week'] ?? now()->toDateString()
+        );
+
+        // Use Saturday as the first day of the week.
+        $weekStart = $weekDate->copy()->startOfWeek(Carbon::SATURDAY);
+        $weekEnd = $weekStart->copy()->addDays(6);
+
+        $user = Auth::user();
+
+        $query = Appointment::with([
+            'doctor.user',
+            'patient.user',
+        ])->whereBetween('appointment_date', [
+            $weekStart->toDateString(),
+            $weekEnd->toDateString(),
+        ]);
+
+        if ($user->doctor) {
+            $query->where('doctor_id', $user->doctor->id);
+        } elseif ($user->patient) {
+            $query->where('patient_id', $user->patient->id);
+        } else {
+            abort(403);
+        }
+
+        $appointments = $query
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_start_time')
+            ->get();
+
+        return view('calendar.index', [
+            'appointments' => $appointments,
+            'weekStart' => $weekStart,
+            'weekEnd' => $weekEnd,
+            'previousWeek' => $weekStart->copy()->subWeek(),
+            'nextWeek' => $weekStart->copy()->addWeek(),
+        ]);
     }
 
     /**

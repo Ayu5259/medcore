@@ -277,3 +277,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/doctor-schedules/{doctorSchedule}', [DoctorScheduleController::class, 'destroy'])
         ->name('doctor-schedules.destroy');
 });
+
+// Doctors Calendar
+Route::middleware('auth')->group(function () {
+    Route::get('/calendar', [
+        DoctorScheduleController::class,
+        'calendar'
+    ])->name('calendar.index');
+});
