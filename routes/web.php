@@ -18,6 +18,10 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DoctorScheduleController;
 
+Route::get('/', function () {
+    return view('layouts.guest');
+})->name('landing');
+
 // Authentication Routes
 
 // Show the login form.

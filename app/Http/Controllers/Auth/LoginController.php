@@ -31,6 +31,10 @@ class LoginController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
-        return 'Invalid email or password';
+        return back()
+            ->withErrors([
+                'email' => 'The provided credentials are incorrect.',
+            ])
+            ->onlyInput('email');
     }
 }
