@@ -1,105 +1,249 @@
-<!DOCTYPE html>
-<html lang="en">
+ @extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ @section('title', 'Create Payment | MediCore')
 
-    <title>Create Payment</title>
-</head>
+ @section('content')
 
-<body>
+ <div class="container-fluid px-0">
 
-    <h1>Create Payment</h1>
+     {{-- Page heading --}}
+     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+         <div>
+             <h2 class="fw-bold mb-1">Create Payment</h2>
+             <p class="text-muted mb-0">
+                 Create a payment record for one of your appointments.
+             </p>
+         </div>
 
-    @if ($errors->any())
-    <div>
-        <h3>Please fix the following errors:</h3>
+         <a href="{{ route('payments.index') }}" class="btn btn-outline-secondary">
+             Back to Payments
+         </a>
+     </div>
 
-        <ul>
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
+     <div class="row g-4">
 
-    @if ($appointments->isEmpty())
+         {{-- Main form --}}
+         <div class="col-12 col-xl-8">
 
-    <p>
-        You have no appointments available for payment.
-    </p>
+             <div class="card border-0 shadow-sm">
 
-    <a href="{{ route('payments.index') }}">
-        Back to Payments
-    </a>
+                 <div class="card-header bg-white border-0 px-4 pt-4">
+                     <h5 class="fw-semibold mb-1">Payment Information</h5>
+                     <p class="text-muted small mb-0">
+                         Complete the required fields below.
+                     </p>
+                 </div>
 
-    @else
+                 <div class="card-body p-4">
 
-    <form method="POST" action="{{ route('payments.store') }}">
+                     {{-- Validation errors --}}
+                     @if($errors->any())
+                     <div class="alert alert-danger mb-4">
+                         <h6 class="fw-semibold">Please check your information</h6>
+                         <ul class="mb-0">
+                             @foreach($errors->all() as $error)
+                             <li>{{ $error }}</li>
+                             @endforeach
+                         </ul>
+                     </div>
+                     @endif
 
-        @csrf
+                     @if($appointments->isEmpty())
 
-        <div>
+                     <div class="text-center py-5">
+                         <h5 class="fw-semibold mb-2">No appointments available</h5>
+                         <p class="text-muted mb-4">
+                             All your appointments may already have payment records.
+                         </p>
 
-            <label for="appointment_id">
-                Select Appointment
-            </label>
+                         <a href="{{ route('payments.index') }}" class="btn btn-primary">
+                             Return to Payments
+                         </a>
+                     </div>
 
-            <select name="appointment_id" id="appointment_id" required>
+                     @else
 
-                <option value="">
-                    -- Select an appointment --
-                </option>
+                     <form method="POST" action="{{ route('payments.store') }}">
+                         @csrf
 
-                @foreach ($appointments as $appointment)
+                         {{-- Appointment selection --}}
+                         <div class="mb-4">
+                             <label for="appointment_id" class="form-label fw-semibold">
+                                 Select Appointment <span class="text-danger">*</span>
+                             </label>
 
-                <option
-                    value="{{ $appointment->id }}"
-                    {{ old('appointment_id') == $appointment->id ? 'selected' : '' }}>
+                             <select
+                                 name="appointment_id"
+                                 id="appointment_id"
+                                 class="form-select @error('appointment_id') is-invalid @enderror"
+                                 required>
 
-                    Appointment #{{ $appointment->id }}
-                    -
-                    Dr.
-                    {{ $appointment->doctor?->user?->first_name }}
-                    {{ $appointment->doctor?->user?->last_name }}
-                    -
-                    {{ $appointment->appointment_date?->format('Y-m-d') }}
-                    -
-                    {{ $appointment->appointment_start_time }}
+                                 <option value="">Choose an appointment</option>
 
-                </option>
+                                 @foreach($appointments as $appointment)
+                                 <option
+                                     value="{{ $appointment->id }}"
+                                     {{ (string) old('appointment_id') === (string) $appointment->id ? 'selected' : '' }}>
 
-                @endforeach
+                                     Appointment #{{ $appointment->id }}
+                                     — Dr. {{ trim(($appointment->doctor?->user?->first_name ?? '') . ' ' . ($appointment->doctor?->user?->last_name ?? '')) ?: 'Unknown' }}
+                                     — {{ $appointment->appointment_date?->format('Y-m-d') ?? 'Date unavailable' }}
+                                     — {{ $appointment->appointment_start_time }}
 
-            </select>
+                                 </option>
+                                 @endforeach
 
-        </div>
+                             </select>
 
-        <br>
+                             @error('appointment_id')
+                             <div class="invalid-feedback">{{ $message }}</div>
+                             @enderror
 
-        <p>
-            Payment method: Card
-        </p>
+                             <div class="form-text">
+                                 Only appointments without an existing payment are listed.
+                             </div>
+                         </div>
 
-        <p>
-            The payment amount will be calculated from the doctor's consultation fee.
-        </p>
+                         {{-- Amount --}}
+                         <div class="mb-4">
+                             <label for="amount" class="form-label fw-semibold">
+                                 Amount <span class="text-danger">*</span>
+                             </label>
 
-        <button type="submit">
-            Create Payment
-        </button>
+                             <div class="input-group">
+                                 <span class="input-group-text">Amount</span>
+                                 <input
+                                     type="number"
+                                     name="amount"
+                                     id="amount"
+                                     class="form-control @error('amount') is-invalid @enderror"
+                                     value="{{ old('amount') }}"
+                                     min="0"
+                                     step="0.01"
+                                     placeholder="Enter payment amount"
+                                     required>
 
-    </form>
+                                 @error('amount')
+                                 <div class="invalid-feedback">{{ $message }}</div>
+                                 @enderror
+                             </div>
 
-    <br>
+                             <div class="form-text">
+                                 Enter the amount in the currency configured for your application.
+                             </div>
+                         </div>
 
-    <a href="{{ route('payments.index') }}">
-        Back to Payments
-    </a>
+                         {{-- Payment method --}}
+                         <div class="mb-4">
+                             <label for="method" class="form-label fw-semibold">
+                                 Payment Method <span class="text-danger">*</span>
+                             </label>
 
-    @endif
+                             <select
+                                 name="method"
+                                 id="method"
+                                 class="form-select @error('method') is-invalid @enderror"
+                                 required>
 
-</body>
+                                 <option value="">Choose a payment method</option>
 
-</html>
+                                 <option value="card" {{ old('method') === 'card' ? 'selected' : '' }}>
+                                     Card
+                                 </option>
+
+                                 <option value="cash" {{ old('method') === 'cash' ? 'selected' : '' }}>
+                                     Cash
+                                 </option>
+
+                                 <option value="online" {{ old('method') === 'online' ? 'selected' : '' }}>
+                                     Online
+                                 </option>
+
+                             </select>
+
+                             @error('method')
+                             <div class="invalid-feedback">{{ $message }}</div>
+                             @enderror
+                         </div>
+
+                         <hr class="my-4">
+
+                         <div class="d-flex flex-column flex-sm-row justify-content-end gap-2">
+                             <a href="{{ route('payments.index') }}"
+                                 class="btn btn-light border px-4">
+                                 Cancel
+                             </a>
+
+                             <button type="submit" class="btn btn-primary px-4">
+                                 Create Payment
+                             </button>
+                         </div>
+
+                     </form>
+
+                     @endif
+
+                 </div>
+             </div>
+         </div>
+
+         {{-- Information panel --}}
+         <div class="col-12 col-xl-4">
+
+             <div class="card border-0 shadow-sm mb-4">
+                 <div class="card-body p-4">
+                     <h6 class="fw-bold mb-3">Before You Continue</h6>
+
+                     <div class="d-flex gap-3 mb-3">
+                         <div>
+                             <span class="badge bg-primary-subtle text-primary rounded-circle p-2">1</span>
+                         </div>
+                         <div>
+                             <div class="fw-semibold">Choose an appointment</div>
+                             <small class="text-muted">
+                                 Select an appointment that does not already have a payment.
+                             </small>
+                         </div>
+                     </div>
+
+                     <div class="d-flex gap-3 mb-3">
+                         <div>
+                             <span class="badge bg-primary-subtle text-primary rounded-circle p-2">2</span>
+                         </div>
+                         <div>
+                             <div class="fw-semibold">Enter payment details</div>
+                             <small class="text-muted">
+                                 Provide the amount and select the payment method.
+                             </small>
+                         </div>
+                     </div>
+
+                     <div class="d-flex gap-3">
+                         <div>
+                             <span class="badge bg-primary-subtle text-primary rounded-circle p-2">3</span>
+                         </div>
+                         <div>
+                             <div class="fw-semibold">Review the payment</div>
+                             <small class="text-muted">
+                                 The payment record is initially created with pending status.
+                             </small>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+
+             <div class="alert alert-info border-0 mb-0">
+                 <h6 class="fw-semibold">Payment status</h6>
+                 <p class="small mb-0">
+                     Creating a payment record does not confirm that money has been received.
+                     The current backend initializes new payments with pending status.
+                 </p>
+             </div>
+
+         </div>
+
+     </div>
+
+ </div>
+
+ @endsection
